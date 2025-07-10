@@ -26,4 +26,4 @@ class BulletRain(GameObject):
     def update(self):
         self.fvel += self.facc
         self.move_in_direction(self.fvel, self.degree)
-        self.move_in_direction(self.svel, self.degree)
+        self.move_in_direction(self.svel, self.degree+90)
