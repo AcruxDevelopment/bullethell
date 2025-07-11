@@ -33,7 +33,6 @@ while running:
         #bullets.append(BulletHeartSpinner(0, (HEIGHT // 2) + (random.randint(-2, 2) * 120), 0, random.randint(3, 4)))
         #bullets.append(BulletRain(random.randint(0,16) * 64, HEIGHT, 180, 0.05, random.randint(-10, 10)/10))
         #bullets.append(BulletRain(0, random.randint(0,8) * 64, 90, 0.05, random.randint(-10, 10)/10))
-        print(deg)
         bullets.append(BulletRain(WIDTH//2, HEIGHT//2, deg, 0.1, random.randint(-10, 10)/10))
         bullets.append(BulletRain(WIDTH//2, HEIGHT//2, deg+127, 0.1, random.randint(-10, 10)/10))
         bullets.append(BulletRain(WIDTH//2, HEIGHT//2, deg-127, 0.1, random.randint(-10, 10)/10))
