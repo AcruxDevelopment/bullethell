@@ -3,13 +3,14 @@ import random
 import math
 from object import GameObject
 from textures import Textures
+from bullet_rain import spade_image
 from bullet_heart_spinner import BulletHeartSpinner
 from bullet_rain import BulletRain
 from soul import Soul
 
 # --- Setup ---
 pygame.init()
-WIDTH, HEIGHT = 800, 600
+WIDTH, HEIGHT = 800, 800
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
 
@@ -17,11 +18,16 @@ clock = pygame.time.Clock()
 soul = Soul(WIDTH//2, HEIGHT//2)
 root = GameObject(WIDTH//2, HEIGHT//2, 0, None)
 bullets = []
+goner = Textures.scaleToFit(Textures.load("spade2.png"), 40, 40)
 
 # --- Main Loop ---
 running = True
 frame = 0
 deg = 0
+LIMIT = 3000
+stage = False
+spade_image = Textures.scaleToFit(Textures.load("spade2.png"), 40, 40)
+
 while running:
     screen.fill((30, 30, 30))
 
@@ -32,28 +38,52 @@ while running:
     keys = pygame.key.get_pressed()
 
     if frame % 8 == 0:
-        x = math.cos(frame*0.005)*50
-        #x = 0
-        #bullets.append(BulletHeartSpinner(0, (HEIGHT // 2) + (random.randint(-2, 2) * 120), 0, random.randint(3, 4)))
-        #bullets.append(BulletRain(random.randint(0,16) * 64, HEIGHT, 180, 0.05, random.randint(-10, 10)/10))
-        #bullets.append(BulletRain(0, random.randint(0,8) * 64, 90, 0.05, random.randint(-10, 10)/10))
-        bullets.append(BulletRain(WIDTH//2+x, HEIGHT//2, deg, 0.08))
-        root.add_child(bullets[-1])
-        bullets.append(BulletRain(WIDTH//2+x, HEIGHT//2, deg+127, 0.08))
-        root.add_child(bullets[-1])
-        bullets.append(BulletRain(WIDTH//2+x, HEIGHT//2, deg-127, 0.08))
-        root.add_child(bullets[-1])
-        root.x = x
-        deg += 25
+        if(frame < LIMIT - 250):
+            x = math.cos(frame*0.003)*100
+            y = -math.sin(frame*0.003)*100
+            #x = 0
+            #bullets.append(BulletHeartSpinner(0, (HEIGHT // 2) + (random.randint(-2, 2) * 120), 0, random.randint(3, 4)))
+            #bullets.append(BulletRain(random.randint(0,16) * 64, HEIGHT, 180, 0.05, random.randint(-10, 10)/10))
+            #bullets.append(BulletRain(0, random.randint(0,8) * 64, 90, 0.05, random.randint(-10, 10)/10))
+            bullets.append(BulletRain(WIDTH//2+x, HEIGHT//2+y, deg, 0.08))
+            root.add_child(bullets[-1])
+            bullets.append(BulletRain(WIDTH//2+x, HEIGHT//2+y, deg+127, 0.08))
+            root.add_child(bullets[-1])
+            bullets.append(BulletRain(WIDTH//2+x, HEIGHT//2+y, deg-127, 0.08))
+            root.add_child(bullets[-1])
+
+            root.x = x
+            root.y = y
+            deg += 25
+        elif (frame > LIMIT + 400) and not stage:
+            stage = True
+            for bullet in bullets:
+                bullet.degree += 90
+                #bullet.point_to(WIDTH//2, HEIGHT//2)
+                #bullet.degree += 180
+                bullet.fvel = 0
+                bullet.facc = 0.1
+        elif (frame > LIMIT + 400):
+            for bullet in bullets:
+                bullet.degree += 1
+        elif (frame > LIMIT + 300):
+            for bullet in bullets:
+                bullet.start_morph(spade_image, 1)
+        elif frame == LIMIT:
+            for bullet in bullets:
+                bullet.facc = 0
+                bullet.fvel = 0
 
 
     # Remove bullets off screen
-    bullets = [b for b in bullets if not b.is_off_screen(WIDTH, HEIGHT)]
+    if not stage:
+        bullets = [b for b in bullets if not b.is_off_screen(WIDTH, HEIGHT)]
 
     for bullet in bullets:
         bullet.update()
         bullet.draw(screen)
-        bullet.degree += 0.7
+        if(frame < LIMIT):
+            bullet.degree += 1
 
     if keys[pygame.K_LEFT]:
         soul.move_by(-soul.vel, 0)

@@ -1,5 +1,6 @@
 import pygame
 import math
+import time
 
 class GameObject:
     def __init__(self, x, y, degree, image, visible=True):
@@ -11,6 +12,11 @@ class GameObject:
         self.children = []
         self.visible = visible  # Control visibility
         self.lock_angle_to_world = False
+	# Morph state
+        self.morph_target_image = None
+        self.morph_start_time = None
+        self.morph_duration = 0
+        self.morphing = False
 
     # --- Properties with child propagation ---
     @property
@@ -71,13 +77,36 @@ class GameObject:
             self.degree += angle_deg  # triggers children rotation
 
     def draw(self, surface):
-        if self.visible:
-            rotated_image = pygame.transform.rotate(self.original_image, self.degree)
-            screen_height = surface.get_height()
-            # Flip Y axis here:
-            flipped_y = screen_height - self.y
-            rect = rotated_image.get_rect(center=(self.x, flipped_y))
-            surface.blit(rotated_image, rect)
+        if not self.visible:
+            return
+
+        current_image = self.original_image
+
+        if self.morphing:
+            elapsed = time.time() - self.morph_start_time
+            progress = min(elapsed / self.morph_duration, 1.0)
+
+            # Blend the two images
+            current_image = pygame.Surface(self.original_image.get_size(), pygame.SRCALPHA)
+            image1 = self.original_image.copy()
+            image2 = self.morph_target_image.copy()
+
+            image1.set_alpha(int(255 * (1.0 - progress)))
+            image2.set_alpha(int(255 * progress))
+
+            current_image.blit(image1, (0, 0))
+            current_image.blit(image2, (0, 0))
+
+            if progress >= 1.0:
+                self.original_image = self.morph_target_image
+                self.image = self.morph_target_image
+                self.morphing = False
+
+        rotated_image = pygame.transform.rotate(current_image, self.degree)
+        screen_height = surface.get_height()
+        flipped_y = screen_height - self.y
+        rect = rotated_image.get_rect(center=(self.x, flipped_y))
+        surface.blit(rotated_image, rect)
 
         for child in self.children:
             child.draw(surface)
@@ -102,3 +131,16 @@ class GameObject:
 
         # If self off-screen/invisible AND all children off-screen → return True
         return self_off_screen
+
+    def point_to(self, target_x, target_y):
+        dx = target_x - self.x
+        dy = target_y - self.y
+        angle_rad = math.atan2(dy, dx)
+        angle_deg = math.degrees(angle_rad)
+        self.degree = angle_deg
+
+    def start_morph(self, new_image, duration):
+        self.morph_target_image = new_image.convert_alpha()
+        self.morph_start_time = time.time()
+        self.morph_duration = duration
+        self.morphing = True
