@@ -5,9 +5,10 @@ from board import Board
 from bullet_rain import BulletRain
 from pattern import Pattern
 import random
+import math
 
 class PatternTestA(Pattern):
-    def __init__(self, soul, board, bullets, center, interval = 15):
+    def __init__(self, soul, board, bullets, center, interval = 12):
         super().__init__(soul, board, bullets, center)
         self.interval = interval
         self.degree = 0
@@ -18,6 +19,8 @@ class PatternTestA(Pattern):
         self.frame += 1
         if self.frame % self.interval == 0:
             soul = self.soul
-
-            bullet = BulletRain(self.board.x - 300, self.board.y, 0, 0.2)
+            rnd = random.randint(-15, 15)
+            bullet = BulletRain(self.board.x - 300, rnd + self.board.y - math.sin(self.frame * 0.1)*120, 0, 0.2)
+            self.bullets.append(bullet)
+            bullet = BulletRain(self.board.x - 300, rnd + self.board.y - -math.sin(self.frame * 0.1)*120, 0, 0.2)
             self.bullets.append(bullet)

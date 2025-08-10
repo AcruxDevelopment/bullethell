@@ -10,3 +10,6 @@ class Pattern:
         self.bullets = bullets
         self.frame = 0
         self.center = center
+
+    def start(self):
+        self.frame = 0

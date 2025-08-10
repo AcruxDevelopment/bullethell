@@ -10,7 +10,11 @@ from soul import Soul
 from board import Board
 from afterimage import Afterimage
 from p_test_a import PatternTestA
+from p_tunnel import PatternTunnel
+from p_round import PatternRound
 from ruddin_a import RuddinA
+from p_forth import PatternForth
+from p_forth2 import PatternForth2
 from graze import Graze
 
 # --- Setup ---
@@ -38,11 +42,16 @@ bullets = []
 afterimages = []
 
 # --- Patterns ---
-#p_test_a = PatternTestA(soul, board, bullets, center)
-#patterns = [p_test_a]
-
+p_test_a = PatternTestA(soul, board, bullets, center)
 p_ruddin = RuddinA(soul, board, bullets, center)
-patterns = [p_ruddin]
+p_tunnel = PatternTunnel(soul, board, bullets, center)
+p_round = PatternRound(soul, board, bullets, center)
+p_forth = PatternForth(soul, board, bullets, center)
+p_forth2 = PatternForth2(soul, board, bullets, center, 35, 0.4)
+patterns = [p_tunnel, p_ruddin, p_round, p_test_a, p_forth, p_forth2]
+pattern = None
+pattern_interval = 500
+pattern_pause = 0
 
 # --- Main Loop ---
 running = True
@@ -54,12 +63,19 @@ while running:
     if False:
         board.x = WIDTH//2 + math.cos(frame * 0.01) * 100
         board.y = HEIGHT//2 + math.sin(frame * 0.01) * 100
-        if frame % 3 == 0:
-            afterimages.append(Afterimage.new_from(board, 0.1, ((WIDTH//2)-board.x)*0.05, ((HEIGHT//2)-board.y)*0.05))
+        if frame % 10 == 0:
+            afterimages.append(Afterimage.new_from(board, .5))
+    if frame % pattern_interval == 0:
+        pattern = patterns[random.randint(0, len(patterns)-1)]
+        pattern_pause = 50
+        pattern.start()
 
     # Updates
-    for i in patterns:
-        i.update()
+    if pattern_pause <= 0:
+        pattern.update()
+    else:
+        pattern_pause -= 1
+
     for i in afterimages:
         i.update()
     for i in bullets:
@@ -82,6 +98,12 @@ while running:
             running = False
 
     keys = pygame.key.get_pressed()
+
+    if keys[pygame.K_1]:
+        pattern = patterns[random.randint(0, len(patterns)-1)]
+        pattern.start()
+        bullets[:] = []
+
     soul.u, soul.l, soul.d, soul.r = False, False, False, False
     if keys[pygame.K_LEFT]:
         soul.move_by(-soul.vel, 0)
