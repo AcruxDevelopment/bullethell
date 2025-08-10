@@ -51,11 +51,13 @@ p_forth2 = PatternForth2(soul, board, bullets, center, 35, 0.4)
 patterns = [p_tunnel, p_ruddin, p_round, p_test_a, p_forth, p_forth2]
 pattern = None
 pattern_interval = 500
+pattern_change_delay = 0
 pattern_pause = 0
 
 # --- Main Loop ---
 running = True
 frame = 0
+keys_old = {}
 while running:
     clock.tick(60)
 
@@ -65,9 +67,10 @@ while running:
         board.y = HEIGHT//2 + math.sin(frame * 0.01) * 100
         if frame % 10 == 0:
             afterimages.append(Afterimage.new_from(board, .5))
-    if frame % pattern_interval == 0:
+    if pattern_change_delay == 0:
         pattern = patterns[random.randint(0, len(patterns)-1)]
         pattern_pause = 50
+        pattern_change_delay = pattern_interval
         pattern.start()
 
     # Updates
@@ -99,10 +102,12 @@ while running:
 
     keys = pygame.key.get_pressed()
 
-    if keys[pygame.K_1]:
+    if keys[pygame.K_1] and not keys_old[pygame.K_1]:
         pattern = patterns[random.randint(0, len(patterns)-1)]
         pattern.start()
         bullets[:] = []
+    keys_old[pygame.K_1] = keys[pygame.K_1]
+
 
     soul.u, soul.l, soul.d, soul.r = False, False, False, False
     if keys[pygame.K_LEFT]:
@@ -154,5 +159,6 @@ while running:
 
     pygame.display.flip()
     frame += 1
+    pattern_change_delay -= 1
 
 pygame.quit()
