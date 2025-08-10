@@ -3,7 +3,7 @@ import math
 import time
 
 class GameObject:
-    def __init__(self, x, y, degree, image, visible=True):
+    def __init__(self, x, y, degree, image, visible=True, radius=5):
         self._x = x
         self._y = y
         self._degree = degree
@@ -17,6 +17,7 @@ class GameObject:
         self.morph_start_time = None
         self.morph_duration = 0
         self.morphing = False
+        self.radius = radius
 
     # --- Properties with child propagation ---
     @property
@@ -139,8 +140,20 @@ class GameObject:
         angle_deg = math.degrees(angle_rad)
         self.degree = angle_deg
 
-    def start_morph(self, new_image, duration):
+    def morph_to(self, new_image, duration):
         self.morph_target_image = new_image.convert_alpha()
         self.morph_start_time = time.time()
         self.morph_duration = duration
         self.morphing = True
+
+    def distance(self, other):
+        # Center-to-center distance
+        dx = other.x - self.x
+        dy = other.y - self.y
+        center_distance = math.sqrt(dx * dx + dy * dy)
+        # Distance between edges (negative if overlapping)
+        return center_distance - (self.radius + other.radius)
+
+    def touches(self, other):
+        # If edge-to-edge distance <= 0, they touch or overlap
+        return self.distance(other) <= 0

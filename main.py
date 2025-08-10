@@ -7,105 +7,130 @@ from bullet_rain import spade_image
 from bullet_heart_spinner import BulletHeartSpinner
 from bullet_rain import BulletRain
 from soul import Soul
+from board import Board
+from afterimage import Afterimage
+from p_test_a import PatternTestA
+from ruddin_a import RuddinA
+from graze import Graze
 
 # --- Setup ---
 pygame.init()
+pygame.mixer.init()
+pygame.mixer.music.load("music/rude_buster.ogg")
+pygame.mixer.music.set_volume(0.5)
+pygame.mixer.music.play(-1)
+
 WIDTH, HEIGHT = 800, 800
+center = (WIDTH//2, HEIGHT//2)
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
 
+# --- Sounds ---
+snd_hurt = pygame.mixer.Sound("sfx/hurt.wav")
+snd_graze = pygame.mixer.Sound("sfx/graze.wav")
+
 # --- Create objects ---
-soul = Soul(WIDTH//2, HEIGHT//2)
+soul = Soul(WIDTH//2, HEIGHT//2, 5)
+graze = Graze(soul)
+board = Board(WIDTH//2, HEIGHT//2)
 root = GameObject(WIDTH//2, HEIGHT//2, 0, None)
 bullets = []
-goner = Textures.scaleToFit(Textures.load("spade2.png"), 40, 40)
+afterimages = []
+
+# --- Patterns ---
+#p_test_a = PatternTestA(soul, board, bullets, center)
+#patterns = [p_test_a]
+
+p_ruddin = RuddinA(soul, board, bullets, center)
+patterns = [p_ruddin]
 
 # --- Main Loop ---
 running = True
 frame = 0
-deg = 0
-LIMIT = 3000
-stage = False
-spade_image = Textures.scaleToFit(Textures.load("spade2.png"), 40, 40)
-
 while running:
-    screen.fill((30, 30, 30))
+    clock.tick(60)
 
+    # Logic
+    if False:
+        board.x = WIDTH//2 + math.cos(frame * 0.01) * 100
+        board.y = HEIGHT//2 + math.sin(frame * 0.01) * 100
+        if frame % 3 == 0:
+            afterimages.append(Afterimage.new_from(board, 0.1, ((WIDTH//2)-board.x)*0.05, ((HEIGHT//2)-board.y)*0.05))
+
+    # Updates
+    for i in patterns:
+        i.update()
+    for i in afterimages:
+        i.update()
+    for i in bullets:
+        if i.touches(soul):
+            snd_hurt.play()
+            i.move_by(0, 10000)
+        if i.touches(graze) and not i.grazed:
+            snd_graze.play()
+            graze.graze()
+            i.grazed = True
+        i.update()
+
+    # Cleanup
+    bullets[:] = [b for b in bullets if not b.is_off_screen(WIDTH, HEIGHT)]
+    afterimages[:] = [a for a in afterimages if not a.end()]
+
+    # Controls
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
     keys = pygame.key.get_pressed()
-
-    if frame % 8 == 0:
-        if(frame < LIMIT - 250):
-            x = math.cos(frame*0.003)*100
-            y = -math.sin(frame*0.003)*100
-            #x = 0
-            #bullets.append(BulletHeartSpinner(0, (HEIGHT // 2) + (random.randint(-2, 2) * 120), 0, random.randint(3, 4)))
-            #bullets.append(BulletRain(random.randint(0,16) * 64, HEIGHT, 180, 0.05, random.randint(-10, 10)/10))
-            #bullets.append(BulletRain(0, random.randint(0,8) * 64, 90, 0.05, random.randint(-10, 10)/10))
-            bullets.append(BulletRain(WIDTH//2+x, HEIGHT//2+y, deg, 0.08))
-            root.add_child(bullets[-1])
-            bullets.append(BulletRain(WIDTH//2+x, HEIGHT//2+y, deg+127, 0.08))
-            root.add_child(bullets[-1])
-            bullets.append(BulletRain(WIDTH//2+x, HEIGHT//2+y, deg-127, 0.08))
-            root.add_child(bullets[-1])
-
-            root.x = x
-            root.y = y
-            deg += 25
-        elif (frame > LIMIT + 400) and not stage:
-            stage = True
-            for bullet in bullets:
-                bullet.degree += 90
-                #bullet.point_to(WIDTH//2, HEIGHT//2)
-                #bullet.degree += 180
-                bullet.fvel = 0
-                bullet.facc = 0.1
-        elif (frame > LIMIT + 400):
-            for bullet in bullets:
-                bullet.degree += 1
-        elif (frame > LIMIT + 300):
-            for bullet in bullets:
-                bullet.start_morph(spade_image, 1)
-        elif frame == LIMIT:
-            for bullet in bullets:
-                bullet.facc = 0
-                bullet.fvel = 0
-
-
-    # Remove bullets off screen
-    if not stage:
-        bullets = [b for b in bullets if not b.is_off_screen(WIDTH, HEIGHT)]
-
-    for bullet in bullets:
-        bullet.update()
-        bullet.draw(screen)
-        if(frame < LIMIT):
-            bullet.degree += 1
-
+    soul.u, soul.l, soul.d, soul.r = False, False, False, False
     if keys[pygame.K_LEFT]:
         soul.move_by(-soul.vel, 0)
+        soul.l = True
     if keys[pygame.K_RIGHT]:
         soul.move_by(soul.vel, 0)
+        soul.r = True
     if keys[pygame.K_UP]:
         soul.move_by(0, soul.vel)
+        soul.u = True
     if keys[pygame.K_DOWN]:
         soul.move_by(0, -soul.vel)
+        soul.d = True
 
     if keys[pygame.K_a]:
         soul.move_in_direction(soul.vel, 180)
+        soul.l = True
     if keys[pygame.K_d]:
         soul.move_in_direction(soul.vel, 0)
+        soul.r = True
     if keys[pygame.K_s]:
         soul.move_in_direction(soul.vel, -90)
+        soul.d = True
     if keys[pygame.K_w]:
         soul.move_in_direction(soul.vel, 90)
+        soul.u = True
+
+    if soul.x - soul.size <  board.x - (board.size/2):
+        soul.x = board.x - (board.size/2) + soul.size
+    elif soul.x + soul.size >  board.x + (board.size/2):
+        soul.x = board.x + (board.size/2) - soul.size
+    if soul.y - soul.size <  board.y - (board.size/2):
+        soul.y = board.y - (board.size/2) + soul.size
+    elif soul.y + soul.size >  board.y + (board.size/2):
+        soul.y = board.y + (board.size/2) - soul.size
+    graze.update()
+
+
+    #Render
+    screen.fill((0, 0, 0))
+    for i in afterimages:
+        i.draw(screen)
+    board.draw(screen)
+    for i in bullets:
+        i.draw(screen)
     soul.draw(screen)
+    graze.draw(screen)
 
     pygame.display.flip()
-    clock.tick(60)
-    frame += 4
+    frame += 1
 
 pygame.quit()
