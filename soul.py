@@ -22,6 +22,7 @@ class Soul(GameObject):
         loadAssets()
         super().__init__(x, y, 0, soul_image)
         self.vel = vel
+        self.max_hp = hp
         self.hp = hp
         self.size = 37
         self.u, self.l, self.d, self.r = False, False, False, False

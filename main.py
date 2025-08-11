@@ -80,6 +80,17 @@ hurt_delay_max = 100
 hurt_delay = 0
 
 #--- Util ---
+bar_width = 200
+bar_height = 30
+bar_x = 50
+bar_y = 50
+
+def draw_health_bar(surface, x, y, width, height):
+    # Draw background (red)
+    pygame.draw.rect(surface, (100, 100, 100), (x, y, width, height))
+    # Calculate green part width
+    health_ratio = soul.hp / soul.max_hp
+    pygame.draw.rect(surface, (0, 255, 0), (x, y, width * health_ratio, height))
 
 # --- Main Loop ---
 while running:
@@ -160,6 +171,8 @@ while running:
             snd_graze.play()
             graze.graze()
             i.grazed = True
+            soul.hp += 1 / 4
+            soul.hp = min(soul.hp, soul.max_hp)
         if frame % 4 == 0 and afterimage:
             rad = math.radians(i.degree)
             vx = math.cos(rad) * 1
@@ -187,6 +200,10 @@ while running:
         bullets[:] = []
         force_soul = True
     keys_old[pygame.K_1] = keys[pygame.K_1]
+
+    if keys[pygame.K_2] and not keys_old[pygame.K_2]:
+        evade = not evade
+    keys_old[pygame.K_2] = keys[pygame.K_2]
 
     soul.u, soul.l, soul.d, soul.r = False, False, False, False
     if keys[pygame.K_LEFT] and pattern_pause <= pattern_pause_move_tres:
@@ -237,6 +254,7 @@ while running:
         i.draw(screen)
     soul.draw(screen)
     graze.draw(screen)
+    draw_health_bar(screen, WIDTH/2-(300/2), HEIGHT - 150, 300 , 25)
 
     pygame.display.flip()
     frame += 1
