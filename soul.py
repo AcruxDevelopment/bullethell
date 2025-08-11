@@ -22,12 +22,12 @@ class Soul(GameObject):
         self.size = 37
         self.u, self.l, self.d, self.r = False, False, False, False
 
-    def evade(self, bullets, center):
+    def evade(self, bullets, center, board):
          xo = self.x
          yo = self.y
          dist = 0
-         dist_max = 400
-         dist_step = 5
+         dist_max = 800
+         dist_step = 1
          deg_step = 10
          while dist < dist_max:
              self.point_to(center.x, center.y)
@@ -39,6 +39,10 @@ class Soul(GameObject):
                  self.y = yo
                  self.move_in_direction(dist, deg)
                  col = False
+                 col = self.x + self.size > board.x + board.size/2
+                 col = col or self.x - self.size < board.x - board.size/2
+                 col = col or self.y - self.size < board.y - board.size/2
+                 col = col or self.y + self.size > board.y + board.size/2
                  for b in bullets:
                      if b.touches(self):
                          col = True

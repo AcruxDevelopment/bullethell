@@ -61,6 +61,7 @@ pattern_pause = 0
 
 # --- Main Loop ---
 running = True
+evade = False
 frame = 0
 keys_old = {}
 while running:
@@ -140,6 +141,8 @@ while running:
     if keys[pygame.K_w]:
         soul.move_in_direction(soul.vel, 90)
         soul.u = True
+    if evade:
+        soul.evade(bullets, root, board)
 
     if soul.x - soul.size <  board.x - (board.size/2):
         soul.x = board.x - (board.size/2) + soul.size
@@ -151,7 +154,6 @@ while running:
         soul.y = board.y + (board.size/2) - soul.size
 
     graze.update()
-    soul.evade(bullets, root)
 
     #Render
     screen.fill((0, 0, 0))
