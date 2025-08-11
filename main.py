@@ -15,6 +15,7 @@ from p_round import PatternRound
 from ruddin_a import RuddinA
 from p_forth import PatternForth
 from p_forth2 import PatternForth2
+from p_ruddin import PatternHathy
 from graze import Graze
 
 # --- Setup ---
@@ -48,7 +49,9 @@ p_tunnel = PatternTunnel(soul, board, bullets, center)
 p_round = PatternRound(soul, board, bullets, center)
 p_forth = PatternForth(soul, board, bullets, center)
 p_forth2 = PatternForth2(soul, board, bullets, center, 35, 0.4)
-patterns = [p_tunnel, p_ruddin, p_round, p_test_a, p_forth, p_forth2]
+p_hathy = PatternHathy(soul, board, bullets, center)
+#patterns = [p_tunnel, p_ruddin, p_round, p_test_a, p_forth, p_forth2, p_hathy]
+patterns = [p_hathy]
 pattern = None
 pattern_interval = 500
 pattern_change_delay = 0
@@ -104,6 +107,7 @@ while running:
 
     if keys[pygame.K_1] and not keys_old[pygame.K_1]:
         pattern = patterns[random.randint(0, len(patterns)-1)]
+        pattern_change_delay = pattern_interval
         pattern.start()
         bullets[:] = []
     keys_old[pygame.K_1] = keys[pygame.K_1]

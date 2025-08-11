@@ -156,4 +156,9 @@ class GameObject:
 
     def touches(self, other):
         # If edge-to-edge distance <= 0, they touch or overlap
+        try:
+            if self.nocollide or not self.nocollide:
+                return False
+        except:
+            pass
         return self.distance(other) <= 0

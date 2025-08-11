@@ -33,7 +33,7 @@ class PatternForth2(Pattern):
                 self.snd_spawn.play()
                 board = self.board
                 xc = board.x - board.size/2
-                while(xc < board.x):
+                while(xc-30 < board.x):
                     bullet = BulletRain(xc, board.y + board.size + 100, -90, ac)
                     self.bullets.append(bullet)
                     xc += 40
@@ -42,7 +42,7 @@ class PatternForth2(Pattern):
                 self.snd_spawn.play()
                 board = self.board
                 yc = board.y + board.size/2
-                while(yc > board.y):
+                while(yc+30 > board.y):
                     bullet = BulletRain(board.x + board.size + 100, yc, 180, ac)
                     self.bullets.append(bullet)
                     yc -= 40
@@ -51,7 +51,7 @@ class PatternForth2(Pattern):
                 self.snd_spawn.play()
                 board = self.board
                 xc = board.x
-                while(xc < board.x + board.size/2):
+                while(xc-30 < board.x + board.size/2):
                     bullet = BulletRain(xc, board.y - board.size - 40, 90, ac)
                     self.bullets.append(bullet)
                     xc += 40
@@ -60,7 +60,7 @@ class PatternForth2(Pattern):
                 self.snd_spawn.play()
                 board = self.board
                 yc = board.y - board.size/2
-                while(yc < board.y):
+                while(yc-30 < board.y):
                     bullet = BulletRain(board.x - board.size - 100, yc, 0, ac)
                     self.bullets.append(bullet)
                     yc += 40
