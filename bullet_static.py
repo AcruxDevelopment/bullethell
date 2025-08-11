@@ -25,6 +25,9 @@ class BulletStatic(GameObject):
         self.frame = 0
         self.grazed = False
 
+    def damage(self, soul):
+        soul.hp -= 25
+
     def update(self):
         if self.frame == 0:
             self.morph_to(spade_image, 0.1)
