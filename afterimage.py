@@ -16,9 +16,9 @@ def loadAssets():
 
 class Afterimage(GameObject):
 
-    def __init__(self, image, time, x, y, vx = 0, vy = 0, ax = 0, ay = 0):
+    def __init__(self, image, time, x, y, d, vx = 0, vy = 0, ax = 0, ay = 0):
         loadAssets()
-        super().__init__(x, y, 0, image)
+        super().__init__(x, y, d, image)
         self.vx = vx
         self.vy = vy
         self.ax = ax
@@ -28,7 +28,7 @@ class Afterimage(GameObject):
         self.og_image = image
 
     def new_from(object, time = 0.5, vx = 0, vy = 0, ax = 0, ay = 0):
-        return Afterimage(object.image, time, object.x, object.y, vx, vy, ax, ay)
+        return Afterimage(object.image, time, object.x, object.y, object.degree, vx, vy, ax, ay)
 
     def update(self):
         global alpha_image

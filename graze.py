@@ -8,7 +8,7 @@ def loadAssets():
     if not(graze_image is None):
         return
     try:
-        graze_image = Textures.scaleToFit(Textures.load("graze.webp"), 37 + 20, 37 + 20)
+        graze_image = Textures.scaleToFit(Textures.load("graze.webp"), 37 + 30, 37 + 30)
     except Exception as e:
         print("Failed to load texture, using fallback polygon:", e)
         graze_image = pygame.Surface((40, 40), pygame.SRCALPHA)
@@ -18,7 +18,7 @@ class Graze(GameObject):
     def __init__(self, soul):
         global graze_image
         loadAssets()
-        super().__init__(0, 0, 0, graze_image, True, 25)
+        super().__init__(0, 0, 0, graze_image, True, 35)
         self.soul = soul
         self.showGraze = 0
 

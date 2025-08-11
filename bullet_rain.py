@@ -21,12 +21,15 @@ def loadAssets():
 class BulletRain(GameObject):
     def __init__(self, x, y, degree, facc = 0.1, svel = 0):
         loadAssets()
-        super().__init__(x, y, degree, spade_spawn_image, True, 20)
+        super().__init__(x, y, degree, spade_spawn_image, True, 17)
         self.svel = svel
         self.fvel = 0
         self.facc = facc
         self.frame = 0
         self.grazed = False
+
+    def damage(self, soul):
+        soul.hp -= 15
 
     def update(self):
         if self.frame == 0:
