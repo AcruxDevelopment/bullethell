@@ -78,6 +78,7 @@ die = False
 die_timer = 0
 hurt_delay_max = 100
 hurt_delay = 0
+play_graze = False
 
 #--- Util ---
 bar_width = 200
@@ -168,7 +169,7 @@ while running:
             if soul.hp > 0:
                 i.move_by(0, 10000)
         if i.touches(graze) and not i.grazed and hurt_delay <= 0:
-            snd_graze.play()
+            play_graze = True
             graze.graze()
             i.grazed = True
             soul.hp += 1 / 4
@@ -261,5 +262,10 @@ while running:
     hurt_delay -= 1
     hurt_delay = max(hurt_delay, 0)
     pattern_change_delay -= 1
+
+    # Sound
+    if play_graze:
+        snd_graze.play()
+        play_graze = False
 
 pygame.quit()
