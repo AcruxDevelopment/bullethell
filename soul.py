@@ -21,3 +21,28 @@ class Soul(GameObject):
         self.vel = vel
         self.size = 37
         self.u, self.l, self.d, self.r = False, False, False, False
+
+    def evade(self, bullets, center):
+         xo = self.x
+         yo = self.y
+         dist = 0
+         dist_max = 400
+         dist_step = 5
+         deg_step = 10
+         while dist < dist_max:
+             self.point_to(center.x, center.y)
+             deg = self.degree
+             self.degree = 0
+             for i in range(360//deg_step):
+                 deg += deg_step
+                 self.x = xo
+                 self.y = yo
+                 self.move_in_direction(dist, deg)
+                 col = False
+                 for b in bullets:
+                     if b.touches(self):
+                         col = True
+                         break
+                 if not col:
+                     return
+             dist += dist_step

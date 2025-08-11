@@ -114,7 +114,6 @@ while running:
         bullets[:] = []
     keys_old[pygame.K_1] = keys[pygame.K_1]
 
-
     soul.u, soul.l, soul.d, soul.r = False, False, False, False
     if keys[pygame.K_LEFT]:
         soul.move_by(-soul.vel, 0)
@@ -150,8 +149,9 @@ while running:
         soul.y = board.y - (board.size/2) + soul.size
     elif soul.y + soul.size >  board.y + (board.size/2):
         soul.y = board.y + (board.size/2) - soul.size
-    graze.update()
 
+    graze.update()
+    soul.evade(bullets, root)
 
     #Render
     screen.fill((0, 0, 0))
