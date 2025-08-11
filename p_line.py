@@ -12,11 +12,15 @@ class PatternLine(Pattern):
         super().__init__(soul, board, bullets, center)
         self.interval = interval
         self.degree = 0
-        self.snd_spawn = pygame.mixer.Sound("sfx/ultraswing.wav")
-        self.snd_spawn.set_volume(0.5)
+        self.snd_spawn = pygame.mixer.Sound("sfx/hypnosis.wav")
+
+    def start(self):
+        self.frame = 0
 
     def update(self):
         self.frame += 1
+        if self.frame == 1:
+            self.snd_spawn.play()
         self.degree += 1
         if self.frame % self.interval == 0:
             soul = self.soul
