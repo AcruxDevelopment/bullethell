@@ -36,7 +36,7 @@ class BulletCircle(GameObject):
         for i in range(0, count):
             bullet = BulletStatic(x, y, degree)
             bullet.move_in_direction(dist, bullet.degree)
-            bullet.degree += 90
+            bullet.degree = 90
             if not dorotate:
                 bullet.lock_angle_to_world = True
             bullets.append(bullet)
@@ -53,7 +53,7 @@ class BulletCircle(GameObject):
             i.y = self.y
             i.degree += 180
             i.move_in_direction(self.dist, i.degree)
-            i.degree += 90
+            i.degree = 90
 
     def update(self):
         global alpha_image

@@ -21,4 +21,5 @@ class PatternHathy(Pattern):
             rx = random.randint(-self.board.size//2, self.board.size//2)
             ry = random.randint(-self.board.size//2, self.board.size//2)
             bullet = BulletCircle(self.center[0]+rx, self.center[1]+ry, 10, 400, 3, self.bullets, False, 80, 3, 100)
+            bullet.setDist(bullet.distance(self.soul)+200)
             self.bullets.append(bullet)

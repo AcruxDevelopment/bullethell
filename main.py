@@ -13,6 +13,7 @@ from p_test_a import PatternTestA
 from p_tunnel import PatternTunnel
 from p_round import PatternRound
 from ruddin_a import RuddinA
+from ruddin_b import RuddinB
 from p_forth import PatternForth
 from p_forth2 import PatternForth2
 from p_ruddin import PatternHathy
@@ -45,13 +46,14 @@ afterimages = []
 # --- Patterns ---
 p_test_a = PatternTestA(soul, board, bullets, center)
 p_ruddin = RuddinA(soul, board, bullets, center)
+p_ruddin_b = RuddinB(soul, board, bullets, center)
 p_tunnel = PatternTunnel(soul, board, bullets, center)
 p_round = PatternRound(soul, board, bullets, center)
 p_forth = PatternForth(soul, board, bullets, center)
 p_forth2 = PatternForth2(soul, board, bullets, center, 35, 0.4)
 p_hathy = PatternHathy(soul, board, bullets, center)
-#patterns = [p_tunnel, p_ruddin, p_round, p_test_a, p_forth, p_forth2, p_hathy]
-patterns = [p_hathy]
+patterns = [p_tunnel, p_ruddin, p_round, p_test_a, p_forth, p_forth2, p_hathy, p_ruddin_b]
+#patterns = [p_forth2]
 pattern = None
 pattern_interval = 500
 pattern_change_delay = 0
