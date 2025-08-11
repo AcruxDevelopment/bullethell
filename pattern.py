@@ -3,8 +3,9 @@ from object import GameObject
 from soul import Soul
 from board import Board
 
-class Pattern:
+class Pattern(GameObject):
     def __init__(self, soul, board, bullets, center):
+        super().__init__(board.x, board.y, 0, None, False)
         self.soul = soul
         self.board = board
         self.bullets = bullets

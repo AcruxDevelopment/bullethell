@@ -17,8 +17,26 @@ class PatternLine(Pattern):
 
     def update(self):
         self.frame += 1
+        self.degree += 1
         if self.frame % self.interval == 0:
             soul = self.soul
             board = self.board
-            bullet = BulletRain(board.x - board.size - 20, self.center[1], 0)
+
+            bullet = BulletRain(board.x - board.size - 20, self.board.y, 0)
             self.bullets.append(bullet)
+            bullet.rotate_around((self.x, self.y), self.degree)
+
+            bullet = BulletRain(self.board.x, board.y + board.size + 20, -90)
+            self.bullets.append(bullet)
+            bullet.rotate_around((self.x, self.y), self.degree)
+
+
+            bullet = BulletRain(board.x - board.size - 20, board.y + board.size + 20, -45)
+            self.bullets.append(bullet)
+            bullet.rotate_around((self.x, self.y), self.degree)
+
+
+            bullet = BulletRain(board.x + board.size + 20, board.y + board.size + 20, 45*5)
+            self.bullets.append(bullet)
+            bullet.rotate_around((self.x, self.y), self.degree)
+
