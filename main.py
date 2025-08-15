@@ -10,6 +10,7 @@ from soul import Soul
 from board import Board
 from afterimage import Afterimage
 from p_test_a import PatternTestA
+from p_test_b import PatternTestB
 from p_tunnel import PatternTunnel
 from p_round import PatternRound
 from ruddin_a import RuddinA
@@ -19,6 +20,7 @@ from p_forth2 import PatternForth2
 from p_ruddin import PatternHathy
 from p_line import PatternLine
 from graze import Graze
+
 
 # --- Setup ---
 pygame.init()
@@ -51,16 +53,19 @@ afterimages = []
 
 # --- Patterns ---
 p_test_a = PatternTestA(soul, board, bullets, center)
+p_test_b = PatternTestB(soul, board, bullets, center, 17)
 p_ruddin = RuddinA(soul, board, bullets, center)
 p_ruddin_b = RuddinB(soul, board, bullets, center)
 p_tunnel = PatternTunnel(soul, board, bullets, center)
 p_round = PatternRound(soul, board, bullets, center)
 p_forth = PatternForth(soul, board, bullets, center)
-p_forth2 = PatternForth2(soul, board, bullets, center, 35, 0.4)
+p_forth2 = PatternForth2(soul, board, bullets, center, 35, 0.7)
 p_hathy = PatternHathy(soul, board, bullets, center)
 p_line = PatternLine(soul, board, bullets, center)
-patterns = [p_tunnel, p_ruddin, p_round, p_test_a, p_forth, p_forth2, p_hathy, p_ruddin_b, p_line]
-#patterns = [p_line]
+patterns = [p_tunnel, p_ruddin, p_round, p_test_a, p_forth, p_forth2, p_hathy, p_ruddin_b, p_line, p_test_b]
+#patterns = [p_test_b]
+#patterns = [p_forth2]
+#patterns = [p_hathy]
 pattern = None
 pattern_interval = 500
 pattern_change_delay = 0
@@ -79,6 +84,9 @@ die_timer = 0
 hurt_delay_max = 100
 hurt_delay = 0
 play_graze = False
+dbgpause = False
+slowm_interval = 5
+slowm_frame = 0
 
 #--- Util ---
 bar_width = 200
@@ -99,6 +107,20 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+    slowm_frame += 1
+    if not dbgpause: slowm_frame = 0
+
+
+    # Controls
+    keys = pygame.key.get_pressed()
+
+    if keys[pygame.K_3] and not keys_old[pygame.K_3]:
+        dbgpause = not dbgpause
+    keys_old[pygame.K_3] = keys[pygame.K_3]
+    if dbgpause and (not keys[pygame.K_4] and not (keys[pygame.K_5] and not keys_old[pygame.K_5]) and not(keys[pygame.K_6] and slowm_frame%slowm_interval==0)):
+        keys_old[pygame.K_5] = keys[pygame.K_5]
+        continue
+    keys_old[pygame.K_5] = keys[pygame.K_5]
 
     if hurt_delay > 0 and not die:
         if hurt_delay % 6 == 0 and not hurt_delay % 12 == 0:
@@ -191,9 +213,6 @@ while running:
     bullets[:] = [b for b in bullets if not b.is_off_screen(WIDTH, HEIGHT)]
     afterimages[:] = [a for a in afterimages if not a.end()]
 
-    # Controls
-    keys = pygame.key.get_pressed()
-
     if keys[pygame.K_1] and not keys_old[pygame.K_1]:
         pattern = patterns[random.randint(0, len(patterns)-1)]
         pattern_change_delay = pattern_interval
@@ -253,8 +272,11 @@ while running:
     board.draw(screen)
     for i in bullets:
         i.draw(screen)
+        i.drawc(screen)
     soul.draw(screen)
+    soul.drawc(screen)
     graze.draw(screen)
+    graze.drawc(screen)
     draw_health_bar(screen, WIDTH/2-(300/2), HEIGHT - 150, 300 , 25)
 
     pygame.display.flip()

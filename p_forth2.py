@@ -8,7 +8,7 @@ import random
 import math
 
 class PatternForth2(Pattern):
-    def __init__(self, soul, board, bullets, center, interval = 20, acc = 0.1):
+    def __init__(self, soul, board, bullets, center, interval = 20, acc = 3):
         super().__init__(soul, board, bullets, center)
         self.interval = interval
         self.degree = 0

@@ -8,7 +8,7 @@ import random
 import math
 
 class PatternLine(Pattern):
-    def __init__(self, soul, board, bullets, center, interval = 5):
+    def __init__(self, soul, board, bullets, center, interval = 4):
         super().__init__(soul, board, bullets, center)
         self.interval = interval
         self.degree = 0
@@ -16,31 +16,33 @@ class PatternLine(Pattern):
 
     def start(self):
         self.frame = 0
+        self.degree
 
     def update(self):
         self.frame += 1
         if self.frame == 1:
             self.snd_spawn.play()
-        self.degree += 1
+        self.degree += 1.5
         if self.frame % self.interval == 0:
             soul = self.soul
             board = self.board
 
-            bullet = BulletRain(board.x - board.size - 20, self.board.y, 0)
+            vel = .2
+            bullet = BulletRain(board.x - board.size - 20, self.board.y, 0, vel)
             self.bullets.append(bullet)
             bullet.rotate_around((self.x, self.y), self.degree)
 
-            bullet = BulletRain(self.board.x, board.y + board.size + 20, -90)
-            self.bullets.append(bullet)
-            bullet.rotate_around((self.x, self.y), self.degree)
-
-
-            bullet = BulletRain(board.x - board.size - 20, board.y + board.size + 20, -45)
+            bullet = BulletRain(self.board.x, board.y + board.size + 20, -90, vel)
             self.bullets.append(bullet)
             bullet.rotate_around((self.x, self.y), self.degree)
 
 
-            bullet = BulletRain(board.x + board.size + 20, board.y + board.size + 20, 45*5)
+            bullet = BulletRain(board.x - board.size - 20, board.y + board.size + 20, -45, vel)
+            self.bullets.append(bullet)
+            bullet.rotate_around((self.x, self.y), self.degree)
+
+
+            bullet = BulletRain(board.x + board.size + 20, board.y + board.size + 20, 45*5, vel)
             self.bullets.append(bullet)
             bullet.rotate_around((self.x, self.y), self.degree)
 

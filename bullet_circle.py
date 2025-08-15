@@ -66,5 +66,5 @@ class BulletCircle(GameObject):
         if self.frame == self.banish_delay:
             for i in self.children:
                 i.morph_to(alpha_image, 0.3)
-        if self.frame > self.banish_delay + 13:
+        if self.frame > self.banish_delay + 14:
             self.x = 10000

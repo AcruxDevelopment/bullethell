@@ -50,6 +50,10 @@ class GameObject:
         for child in self.children:
             child.rotate_around((self.x, self.y), d_angle, child.lock_angle_to_world)
 
+    def drawc(self, screen):
+        flipped_y = screen.get_height() - self.y
+        pygame.draw.circle(screen, (255, 0, 0), (self.x, flipped_y), self.radius, 2)
+
     def add_child(self, child):
         self.children.append(child)
 
