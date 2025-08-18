@@ -200,7 +200,8 @@ while running:
             afterimages.append(Afterimage.new_from(gooner, .5))
 
     # Updates
-    gooner.update()
+    if gooner is not None:
+        gooner.update()
 
     if pattern_pause <= 0:
         pattern.update()
@@ -307,7 +308,7 @@ while running:
     screen.fill((0, 0, 0))
     for i in afterimages:
         i.draw(screen)
-    gooner.draw(screen)
+    if gooner is not None: gooner.draw(screen)
     board.draw(screen)
     for i in bullets:
         i.draw(screen)
