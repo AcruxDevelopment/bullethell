@@ -19,6 +19,8 @@ from p_forth import PatternForth
 from p_forth2 import PatternForth2
 from p_ruddin import PatternHathy
 from p_line import PatternLine
+from p_ball import PatternBall
+from p_ball_heavy import PatternBallHeavy
 from graze import Graze
 
 
@@ -62,10 +64,12 @@ p_forth = PatternForth(soul, board, bullets, center)
 p_forth2 = PatternForth2(soul, board, bullets, center, 35, 0.7)
 p_hathy = PatternHathy(soul, board, bullets, center)
 p_line = PatternLine(soul, board, bullets, center)
-patterns = [p_tunnel, p_ruddin, p_round, p_test_a, p_forth, p_forth2, p_hathy, p_ruddin_b, p_line, p_test_b]
+p_ball = PatternBall(soul, board, bullets, center)
+p_ball_heavy = PatternBallHeavy(soul, board, bullets, center)
+#patterns = [p_tunnel, p_ruddin, p_round, p_test_a, p_forth, p_forth2, p_hathy, p_ruddin_b, p_line, p_test_b, p_ball, p_ball_heavy]
 #patterns = [p_test_b]
 #patterns = [p_forth2]
-#patterns = [p_hathy]
+patterns = [p_ball]
 pattern = None
 pattern_interval = 500
 pattern_change_delay = 0
@@ -87,6 +91,7 @@ play_graze = False
 dbgpause = False
 slowm_interval = 5
 slowm_frame = 0
+draw_hb = False
 
 #--- Util ---
 bar_width = 200
@@ -103,13 +108,13 @@ def draw_health_bar(surface, x, y, width, height):
 
 # --- Main Loop ---
 while running:
+    bullets_delete = []
     clock.tick(60)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
     slowm_frame += 1
     if not dbgpause: slowm_frame = 0
-
 
     # Controls
     keys = pygame.key.get_pressed()
@@ -169,7 +174,7 @@ while running:
         pattern.update()
     else:
         for i in bullets:
-            i.x = 1000
+            bullets_delete.append(i)
         pattern_pause -= 1
 
         if force_soul:
@@ -189,7 +194,7 @@ while running:
                     hurt_delay = hurt_delay_max
                 except: pass
             if soul.hp > 0:
-                i.move_by(0, 10000)
+                bullets_delete.append(i)
         if i.touches(graze) and not i.grazed and hurt_delay <= 0:
             play_graze = True
             graze.graze()
@@ -208,10 +213,6 @@ while running:
     # Die Guard
     if die:
         continue
-
-    # Cleanup
-    bullets[:] = [b for b in bullets if not b.is_off_screen(WIDTH, HEIGHT)]
-    afterimages[:] = [a for a in afterimages if not a.end()]
 
     if keys[pygame.K_1] and not keys_old[pygame.K_1]:
         pattern = patterns[random.randint(0, len(patterns)-1)]
@@ -272,11 +273,11 @@ while running:
     board.draw(screen)
     for i in bullets:
         i.draw(screen)
-        i.drawc(screen)
+        if draw_hb: i.drawc(screen)
     soul.draw(screen)
-    soul.drawc(screen)
+    if draw_hb: soul.drawc(screen)
     graze.draw(screen)
-    graze.drawc(screen)
+    if draw_hb: graze.drawc(screen)
     draw_health_bar(screen, WIDTH/2-(300/2), HEIGHT - 150, 300 , 25)
 
     pygame.display.flip()
@@ -289,5 +290,9 @@ while running:
     if play_graze:
         snd_graze.play()
         play_graze = False
+
+    # Cleanup
+    bullets[:] = [b for b in bullets if (not b.is_off_screen(WIDTH, HEIGHT)) and (not b in bullets_delete)]
+    afterimages[:] = [a for a in afterimages if not a.end()]
 
 pygame.quit()
