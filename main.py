@@ -4,6 +4,8 @@ import math
 from object import GameObject
 from textures import Textures
 from bullet_rain import spade_image
+from bullet_ball import BulletBall
+from bullet_ball_fall import BulletBallFall
 from bullet_heart_spinner import BulletHeartSpinner
 from bullet_rain import BulletRain
 from soul import Soul
@@ -22,7 +24,7 @@ from p_line import PatternLine
 from p_ball import PatternBall
 from p_ball_heavy import PatternBallHeavy
 from graze import Graze
-
+from gooner import Gooner
 
 # --- Setup ---
 pygame.init()
@@ -52,6 +54,7 @@ board = Board(WIDTH//2, HEIGHT//2)
 root = GameObject(WIDTH//2, HEIGHT//2, 0, None)
 bullets = []
 afterimages = []
+gooner = Gooner((root.x, root.y))
 
 # --- Patterns ---
 p_test_a = PatternTestA(soul, board, bullets, center)
@@ -66,10 +69,10 @@ p_hathy = PatternHathy(soul, board, bullets, center)
 p_line = PatternLine(soul, board, bullets, center)
 p_ball = PatternBall(soul, board, bullets, center)
 p_ball_heavy = PatternBallHeavy(soul, board, bullets, center)
-#patterns = [p_tunnel, p_ruddin, p_round, p_test_a, p_forth, p_forth2, p_hathy, p_ruddin_b, p_line, p_test_b, p_ball, p_ball_heavy]
+patterns = [p_tunnel, p_ruddin, p_round, p_test_a, p_forth, p_forth2, p_hathy, p_ruddin_b, p_line, p_test_b, p_ball, p_ball_heavy]
 #patterns = [p_test_b]
 #patterns = [p_forth2]
-patterns = [p_ball]
+#patterns = [p_ball_heavy, p_ball, p_ruddin]
 pattern = None
 pattern_interval = 500
 pattern_change_delay = 0
@@ -158,9 +161,9 @@ while running:
 
     # Logic
     if False:
-        board.x = WIDTH//2 + math.cos(frame * 0.01) * 100
-        board.y = HEIGHT//2 + math.sin(frame * 0.01) * 100
-        if frame % 10 == 0:
+        board.x = WIDTH//2 + math.cos(frame * 0.1) * 300
+        board.y = HEIGHT//2 + math.sin(frame * 0.1) * 300
+        if frame % 2 == 0:
             afterimages.append(Afterimage.new_from(board, .5))
     if pattern_change_delay == 0:
         pattern = patterns[random.randint(0, len(patterns)-1)]
@@ -168,13 +171,20 @@ while running:
         force_soul = True
         pattern_change_delay = pattern_interval
         pattern.start()
+        for i in bullets:
+            bullets_delete.append(i)
+        bullets[:] = [b for b in bullets if not b in bullets_delete]
+
+    if True:
+        if frame % 5 == 0:
+            afterimages.append(Afterimage.new_from(gooner, .5))
 
     # Updates
+    gooner.update()
+
     if pattern_pause <= 0:
         pattern.update()
     else:
-        for i in bullets:
-            bullets_delete.append(i)
         pattern_pause -= 1
 
         if force_soul:
@@ -189,11 +199,14 @@ while running:
         if i.touches(soul):
             if hurt_delay <= 0:
                 try:
-                    i.damage(soul)
-                    snd_hurt.play()
-                    hurt_delay = hurt_delay_max
+                    if type(i) is BulletBall or type(i) is BulletBallFall and i.isRalsei:
+                        soul.hp += 10
+                    else:
+                        i.damage(soul)
+                        snd_hurt.play()
+                        hurt_delay = hurt_delay_max
                 except: pass
-            if soul.hp > 0:
+            if soul.hp > 0 and not(type(i) is BulletBall or type(i) is BulletBallFall and i.isRalsei and hurt_delay > 0) :
                 bullets_delete.append(i)
         if i.touches(graze) and not i.grazed and hurt_delay <= 0:
             play_graze = True
@@ -210,6 +223,10 @@ while running:
     for i in afterimages:
         i.update()
 
+    # Cleanup
+    bullets[:] = [b for b in bullets if (not b.is_off_screen(WIDTH, HEIGHT)) and (not b in bullets_delete)]
+    afterimages[:] = [a for a in afterimages if not a.end()]
+
     # Die Guard
     if die:
         continue
@@ -220,6 +237,9 @@ while running:
         pattern.start()
         bullets[:] = []
         force_soul = True
+        for i in bullets:
+            bullets_delete.append(i)
+        bullets[:] = [b for b in bullets if not b in bullets_delete]
     keys_old[pygame.K_1] = keys[pygame.K_1]
 
     if keys[pygame.K_2] and not keys_old[pygame.K_2]:
@@ -270,6 +290,7 @@ while running:
     screen.fill((0, 0, 0))
     for i in afterimages:
         i.draw(screen)
+    gooner.draw(screen)
     board.draw(screen)
     for i in bullets:
         i.draw(screen)
@@ -290,9 +311,5 @@ while running:
     if play_graze:
         snd_graze.play()
         play_graze = False
-
-    # Cleanup
-    bullets[:] = [b for b in bullets if (not b.is_off_screen(WIDTH, HEIGHT)) and (not b in bullets_delete)]
-    afterimages[:] = [a for a in afterimages if not a.end()]
 
 pygame.quit()

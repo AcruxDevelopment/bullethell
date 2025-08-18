@@ -19,3 +19,9 @@ class Board(GameObject):
         loadAssets()
         super().__init__(x, y, 0, board_image)
         self.size = 320
+
+    def draw(self, screen):
+        screen_height = screen.get_height()
+        flipped_y = screen_height - self.y
+        pygame.draw.rect(screen, (0, 0, 0), (10+self.x-self.size/2, 10+flipped_y-self.size/2, self.size-20, self.size-20))
+        super().draw(screen)
