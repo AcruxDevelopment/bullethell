@@ -25,13 +25,14 @@ from p_ball import PatternBall
 from p_ball_heavy import PatternBallHeavy
 from graze import Graze
 from gooner import Gooner
+from soul_shard import SoulShard
 
 # --- Setup ---
 pygame.init()
 pygame.mixer.init()
 pygame.mixer.music.load("music/rude_buster.ogg")
 pygame.mixer.music.set_volume(0.5)
-pygame.mixer.music.play(-1)
+#pygame.mixer.music.play(-1)
 
 WIDTH, HEIGHT = 800, 800
 center = (WIDTH//2, HEIGHT//2)
@@ -72,7 +73,7 @@ p_ball_heavy = PatternBallHeavy(soul, board, bullets, center)
 patterns = [p_tunnel, p_ruddin, p_round, p_test_a, p_forth, p_forth2, p_hathy, p_ruddin_b, p_line, p_test_b, p_ball, p_ball_heavy]
 #patterns = [p_test_b]
 #patterns = [p_forth2]
-#patterns = [p_ball_heavy, p_ball, p_ruddin]
+#patterns = [p_ball_heavy, p_ball]
 pattern = None
 pattern_interval = 500
 pattern_change_delay = 0
@@ -95,6 +96,7 @@ dbgpause = False
 slowm_interval = 5
 slowm_frame = 0
 draw_hb = False
+soul_shards = []
 
 #--- Util ---
 bar_width = 200
@@ -139,18 +141,28 @@ while running:
     # Die
     die = soul.hp <= 0
     if die:
+
+        for i in soul_shards:
+            i.update()
+
         die_timer += 1
         if die_timer == 1:
             pygame.mixer.music.set_volume(0)
-        if die_timer == 90:
+        if die_timer == 130:
             snd_break1.play()
-        if die_timer == 150:
+            soul_shards = [SoulShard(soul.x, soul.y, True), SoulShard(soul.x, soul.y, False)]
             soul.morph_to(alpha_image, 0.01)
+
+        if die_timer == 200: #150
+            soul_shards = []
             snd_break2.play()
 
         if die_timer > 90:
             screen.fill((0,0,0))
             soul.draw(screen)
+            for i in soul_shards:
+                i.draw(screen)
+
             pygame.display.flip()
         if die_timer > 150:
             pass
@@ -175,7 +187,7 @@ while running:
             bullets_delete.append(i)
         bullets[:] = [b for b in bullets if not b in bullets_delete]
 
-    if True:
+    if False:
         if frame % 5 == 0:
             afterimages.append(Afterimage.new_from(gooner, .5))
 
@@ -199,14 +211,11 @@ while running:
         if i.touches(soul):
             if hurt_delay <= 0:
                 try:
-                    if type(i) is BulletBall or type(i) is BulletBallFall and i.isRalsei:
-                        soul.hp += 10
-                    else:
-                        i.damage(soul)
-                        snd_hurt.play()
-                        hurt_delay = hurt_delay_max
+                    i.damage(soul)
+                    snd_hurt.play()
+                    hurt_delay = hurt_delay_max
                 except: pass
-            if soul.hp > 0 and not(type(i) is BulletBall or type(i) is BulletBallFall and i.isRalsei and hurt_delay > 0) :
+            if soul.hp > 0:
                 bullets_delete.append(i)
         if i.touches(graze) and not i.grazed and hurt_delay <= 0:
             play_graze = True

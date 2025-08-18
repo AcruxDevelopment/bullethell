@@ -5,18 +5,15 @@ from textures import Textures
 import random
 
 spade_image = None
-ral_image = None
 spade_spawn_image = None
 def loadAssets():
 	global spade_image
 	global spade_spawn_image
-	global ral_image
 	if not(spade_image is None) and not(spade_spawn_image is None):
 		return
 	try:
-		spade_spawn_image = Textures.scaleToFit(Textures.load("alpha.webp"), 40, 40)
-		spade_image = Textures.scaleToFit(Textures.load("ball.webp"), 80, 80)
-		ral_image = Textures.scaleToFit(Textures.load("ball_ral.webp"), 80, 80)
+		spade_spawn_image = Textures.scaleToFit(Textures.load("alpha.webp"), 60, 60)
+		spade_image = Textures.scaleToFit(Textures.load("ball.webp"), 60, 60)
 	except Exception as e:
 		print("Failed to load texture, using fallback polygon:", e)
 		spade_image = pygame.Surface((40, 40), pygame.SRCALPHA)
@@ -35,10 +32,9 @@ class BulletBallFall(GameObject):
 		self.bounce = bounce
 		self.fric = fric
 		self.clamp = False
-		self.isRalsei = random.randint(0, 4) == 0
 
 	def damage(self, soul):
-		soul.hp -= 25 if not self.isRalsei else -25
+		soul.hp -= 25
 
 	def move(self):
 		prevx = self.x
@@ -80,7 +76,7 @@ class BulletBallFall(GameObject):
 
 	def update(self):
 		if self.frame == 0:
-			self.morph_to(ral_image if self.isRalsei else spade_image, 0.1)
+			self.morph_to(spade_image, 0.2)
 		self.move()
 		self.frame += 1
 
