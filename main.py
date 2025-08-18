@@ -26,6 +26,7 @@ from p_ball_heavy import PatternBallHeavy
 from graze import Graze
 from gooner import Gooner
 from soul_shard import SoulShard
+from soul_shard_fall import SoulShardFall
 
 # --- Setup ---
 pygame.init()
@@ -154,7 +155,14 @@ while running:
             soul.morph_to(alpha_image, 0.01)
 
         if die_timer == 200: #150
-            soul_shards = []
+            soul_shards = [
+                SoulShardFall(soul.x, soul.y, 0, 7, 0),
+                SoulShardFall(soul.x, soul.y, -3, 5, 0),
+                SoulShardFall(soul.x, soul.y, -7, 2, 0),
+                SoulShardFall(soul.x, soul.y, -5, -2, 0),
+                SoulShardFall(soul.x, soul.y, 7, -3, 0),
+                SoulShardFall(soul.x, soul.y, 3, -5, 0)
+            ]
             snd_break2.play()
 
         if die_timer > 90:
@@ -164,10 +172,10 @@ while running:
                 i.draw(screen)
 
             pygame.display.flip()
-        if die_timer > 150:
+        if die_timer > 200:
             pass
 
-        if die_timer > 250:
+        if die_timer > 300:
             running = False
         continue
 
