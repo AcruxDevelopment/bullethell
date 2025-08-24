@@ -21,7 +21,7 @@ class Graze(GameObject):
     def __init__(self, soul):
         global graze_image
         loadAssets()
-        super().__init__(0, 0, 0, graze_image, True, 35)
+        super().__init__(0, 0, 0, alpha_image, True, 35)
         self.soul = soul
         self.showGraze = 0
         self.visible = True
