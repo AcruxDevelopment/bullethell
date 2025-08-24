@@ -1,6 +1,7 @@
 import pygame
 import random
 import math
+import subprocess
 from object import GameObject
 from textures import Textures
 from bullet_rain import spade_image
@@ -23,6 +24,7 @@ from p_ruddin import PatternHathy
 from p_line import PatternLine
 from p_ball import PatternBall
 from p_ball_heavy import PatternBallHeavy
+from p_reverse_fall import PatternReverseFall
 from graze import Graze
 from gooner import Gooner
 from soul_shard import SoulShard
@@ -33,7 +35,7 @@ pygame.init()
 pygame.mixer.init()
 pygame.mixer.music.load("music/rude_buster.ogg")
 pygame.mixer.music.set_volume(0.5)
-#pygame.mixer.music.play(-1)
+pygame.mixer.music.play(-1)
 
 WIDTH, HEIGHT = 800, 800
 center = (WIDTH//2, HEIGHT//2)
@@ -56,25 +58,28 @@ board = Board(WIDTH//2, HEIGHT//2)
 root = GameObject(WIDTH//2, HEIGHT//2, 0, None)
 bullets = []
 afterimages = []
-gooner = Gooner((root.x, root.y))
+gooner = None #Gooner((root.x, root.y))
 
 # --- Patterns ---
-p_test_a = PatternTestA(soul, board, bullets, center)
-p_test_b = PatternTestB(soul, board, bullets, center, 17)
-p_ruddin = RuddinA(soul, board, bullets, center)
-p_ruddin_b = RuddinB(soul, board, bullets, center)
-p_tunnel = PatternTunnel(soul, board, bullets, center)
-p_round = PatternRound(soul, board, bullets, center)
-p_forth = PatternForth(soul, board, bullets, center)
-p_forth2 = PatternForth2(soul, board, bullets, center, 35, 0.7)
-p_hathy = PatternHathy(soul, board, bullets, center)
-p_line = PatternLine(soul, board, bullets, center)
-p_ball = PatternBall(soul, board, bullets, center)
-p_ball_heavy = PatternBallHeavy(soul, board, bullets, center)
-patterns = [p_tunnel, p_ruddin, p_round, p_test_a, p_forth, p_forth2, p_hathy, p_ruddin_b, p_line, p_test_b, p_ball, p_ball_heavy]
+def p_test_a(): return PatternTestA(soul, board, bullets, center)
+def p_test_b(): return PatternTestB(soul, board, bullets, center, 17)
+def p_ruddin(): return RuddinA(soul, board, bullets, center)
+def p_ruddin_b(): return RuddinB(soul, board, bullets, center)
+def p_tunnel(): return PatternTunnel(soul, board, bullets, center)
+def p_round(): return PatternRound(soul, board, bullets, center)
+def p_forth(): return PatternForth(soul, board, bullets, center)
+def p_forth2(): return PatternForth2(soul, board, bullets, center, 35, 0.7)
+def p_hathy(): return PatternHathy(soul, board, bullets, center)
+def p_line(): return PatternLine(soul, board, bullets, center)
+def p_ball(): return PatternBall(soul, board, bullets, center)
+def p_ball_heavy(): return PatternBallHeavy(soul, board, bullets, center)
+def p_reverse_fall(): return PatternReverseFall(soul, board, bullets, center)
+patterns = [p_tunnel, p_ruddin, p_round, p_test_a, p_forth, p_forth2, p_hathy, p_ruddin_b, p_line, p_test_b, p_ball, p_ball_heavy, p_reverse_fall]
 #patterns = [p_test_b]
 #patterns = [p_forth2]
 #patterns = [p_ball_heavy, p_ball]
+#patterns = [p_reverse_fall]
+#patterns = [p_hathy]
 pattern = None
 pattern_interval = 500
 pattern_change_delay = 0
@@ -94,7 +99,7 @@ hurt_delay_max = 100
 hurt_delay = 0
 play_graze = False
 dbgpause = False
-slowm_interval = 5
+slowm_interval = 2
 slowm_frame = 0
 draw_hb = False
 soul_shards = []
@@ -157,10 +162,10 @@ while running:
         if die_timer == 200: #150
             soul_shards = [
                 SoulShardFall(soul.x, soul.y, 0, 7, 0),
-                SoulShardFall(soul.x, soul.y, -3, 5, 0),
+                SoulShardFall(soul.x, soul.y, -3, 5, 1),
                 SoulShardFall(soul.x, soul.y, -7, 2, 0),
-                SoulShardFall(soul.x, soul.y, -5, -2, 0),
-                SoulShardFall(soul.x, soul.y, 7, -3, 0),
+                SoulShardFall(soul.x, soul.y, -5, -2, 1),
+                SoulShardFall(soul.x, soul.y, 7, -3, 1),
                 SoulShardFall(soul.x, soul.y, 3, -5, 0)
             ]
             snd_break2.play()
@@ -176,6 +181,8 @@ while running:
             pass
 
         if die_timer > 300:
+            #os.system("python main.py")
+            subprocess.Popen(["python", "main.py"])
             running = False
         continue
 
@@ -186,7 +193,7 @@ while running:
         if frame % 2 == 0:
             afterimages.append(Afterimage.new_from(board, .5))
     if pattern_change_delay == 0:
-        pattern = patterns[random.randint(0, len(patterns)-1)]
+        pattern = patterns[random.randint(0, len(patterns)-1)]()
         pattern_pause = 50
         force_soul = True
         pattern_change_delay = pattern_interval
@@ -242,7 +249,7 @@ while running:
         i.update()
 
     # Cleanup
-    bullets[:] = [b for b in bullets if (not b.is_off_screen(WIDTH, HEIGHT)) and (not b in bullets_delete)]
+    bullets[:] = [b for b in bullets if (not (b.is_off_screen(WIDTH, HEIGHT) and b.off_screen_del_cond(b))) and (not b in bullets_delete)]
     afterimages[:] = [a for a in afterimages if not a.end()]
 
     # Die Guard
@@ -250,7 +257,7 @@ while running:
         continue
 
     if keys[pygame.K_1] and not keys_old[pygame.K_1]:
-        pattern = patterns[random.randint(0, len(patterns)-1)]
+        pattern = patterns[random.randint(0, len(patterns)-1)]()
         pattern_change_delay = pattern_interval
         pattern.start()
         bullets[:] = []
@@ -306,10 +313,10 @@ while running:
 
     #Render
     screen.fill((0, 0, 0))
+    board.draw(screen)
     for i in afterimages:
         i.draw(screen)
     if gooner is not None: gooner.draw(screen)
-    board.draw(screen)
     for i in bullets:
         i.draw(screen)
         if draw_hb: i.drawc(screen)

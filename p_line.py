@@ -7,6 +7,9 @@ from pattern import Pattern
 import random
 import math
 
+def off_screen_del_cond(self:BulletRain):
+    return self.frame > 200
+
 class PatternLine(Pattern):
     def __init__(self, soul, board, bullets, center, interval = 4):
         super().__init__(soul, board, bullets, center)
@@ -29,20 +32,24 @@ class PatternLine(Pattern):
 
             vel = .2
             bullet = BulletRain(board.x - board.size - 20, self.board.y, 0, vel)
+            bullet.off_screen_del_cond = off_screen_del_cond
             self.bullets.append(bullet)
             bullet.rotate_around((self.x, self.y), self.degree)
 
             bullet = BulletRain(self.board.x, board.y + board.size + 20, -90, vel)
+            bullet.off_screen_del_cond = off_screen_del_cond
             self.bullets.append(bullet)
             bullet.rotate_around((self.x, self.y), self.degree)
 
 
             bullet = BulletRain(board.x - board.size - 20, board.y + board.size + 20, -45, vel)
+            bullet.off_screen_del_cond = off_screen_del_cond
             self.bullets.append(bullet)
             bullet.rotate_around((self.x, self.y), self.degree)
 
 
             bullet = BulletRain(board.x + board.size + 20, board.y + board.size + 20, 45*5, vel)
+            bullet.off_screen_del_cond = off_screen_del_cond
             self.bullets.append(bullet)
             bullet.rotate_around((self.x, self.y), self.degree)
 

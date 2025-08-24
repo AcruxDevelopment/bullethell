@@ -4,6 +4,9 @@ from object import GameObject
 from textures import Textures
 from bullet_static import BulletStatic
 
+def off_screen_del_cond(self:BulletStatic):
+    return self.frame > 250
+
 alpha_image = None
 bullet_image = None
 def loadAssets():
@@ -35,6 +38,7 @@ class BulletCircle(GameObject):
         self.nocollide = True
         for i in range(0, count):
             bullet = BulletStatic(x, y, degree)
+            bullet.off_screen_del_cond = off_screen_del_cond
             bullet.move_in_direction(dist, bullet.degree)
             bullet.degree = 90
             if not dorotate:

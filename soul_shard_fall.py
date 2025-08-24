@@ -34,10 +34,13 @@ class SoulShardFall(GameObject):
         self.vy = vy
         self.grav = 0.3
         self.fric = 1
+        self.num = num
 
     def update(self):
         if self.frame == 0:
-            self.morph_to(alpha_image, 1)
+            #self.morph_to(alpha_image, 1)
+            pass
+
         self.x += self.vx
         self.y += self.vy
         self.vy -= self.grav
@@ -45,6 +48,12 @@ class SoulShardFall(GameObject):
         self.vy *= self.fric
         if self.frame % 10 == 0:
             self.degree += 45
+            if self.num == 1:
+                self.morph_to(soull_image, 0.01)
+                self.num = 0
+            else:
+                self.morph_to(soulr_image, 0.01)
+                self.num = 1
         self.frame += 1
 
     

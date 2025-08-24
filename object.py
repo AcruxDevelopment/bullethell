@@ -2,8 +2,12 @@ import pygame
 import math
 import time
 
+def default_off_screen_del_cond(self):
+        return True
+
 class GameObject:
-    def __init__(self, x, y, degree, image, visible=True, radius=5):
+    def __init__(self, x, y, degree, image, visible=True, radius=5, off_screen_del_cond = None):
+        global default_off_screen_del_cond
         self._x = x
         self._y = y
         self._degree = degree
@@ -18,6 +22,9 @@ class GameObject:
         self.morph_duration = 0
         self.morphing = False
         self.radius = radius
+        self.off_screen_del_cond = off_screen_del_cond
+        if(self.off_screen_del_cond == None):
+            self.off_screen_del_cond = default_off_screen_del_cond
 
     # --- Properties with child propagation ---
     @property
