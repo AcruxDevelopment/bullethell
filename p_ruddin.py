@@ -14,7 +14,11 @@ class PatternHathy(Pattern):
         self.snd_spawn = pygame.mixer.Sound("sfx/ultraswing.wav")
         self.snd_spawn.set_volume(0.5)
 
+    def start(self):
+        super().start()
+
     def update(self):
+        super().update()
         soul = self.soul
         self.frame += 1
         if self.frame % self.interval == 0:

@@ -19,16 +19,21 @@ def loadAssets():
         pygame.draw.polygon(spade_image, (0, 255, 0), [(20,0),(40,40),(0,40)])
 
 class BulletStatic(GameObject):
-    def __init__(self, x, y, degree):
+    def __init__(self, x, y, degree, image = None, breakable = True, rad = 20):
+        global spade_image
+        global spade_spawn_image
         loadAssets()
-        super().__init__(x, y, degree, spade_spawn_image, True, 20)
+        if image is None: image = spade_image
+        self.eeeimage = image
+        super().__init__(x, y, degree, spade_spawn_image, True, rad)
         self.frame = 0
         self.grazed = False
+        self.breakable = breakable
 
     def damage(self, soul):
         soul.hp -= 25
 
     def update(self):
         if self.frame == 0:
-            self.morph_to(spade_image, 0.1)
+            self.morph_to(self.eeeimage, 0.1)
         self.frame += 1

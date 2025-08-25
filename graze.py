@@ -34,5 +34,6 @@ class Graze(GameObject):
     def update(self):
         self.x = self.soul.x
         self.y = self.soul.y
+        self.degree = self.soul.degree
         #self.showGraze -= 1
         #self.visible = self.showGraze > 0

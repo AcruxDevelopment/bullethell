@@ -25,10 +25,12 @@ from p_line import PatternLine
 from p_ball import PatternBall
 from p_ball_heavy import PatternBallHeavy
 from p_reverse_fall import PatternReverseFall
+from p_spin import PatternSpin
 from graze import Graze
 from gooner import Gooner
 from soul_shard import SoulShard
 from soul_shard_fall import SoulShardFall
+from soul_bullet import SoulBullet
 
 # --- Setup ---
 pygame.init()
@@ -42,8 +44,11 @@ center = (WIDTH//2, HEIGHT//2)
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
 alpha_image = Textures.load("alpha.webp")
-soul_image = Textures.scaleToFit(Textures.load("soul.webp"), 37, 37)
-soulh_image = Textures.scaleToFit(Textures.load("soulh.webp"), 37, 37)
+soul_img_Size = 37 #37
+soulr_image = Textures.scaleToFit(Textures.load("soul_r.webp"), soul_img_Size, soul_img_Size)
+soulrh_image = Textures.scaleToFit(Textures.load("soul_rh.webp"), soul_img_Size, soul_img_Size)
+souly_image = Textures.scaleToFit(Textures.load("soul_y.webp"), soul_img_Size, soul_img_Size)
+soulyh_image = Textures.scaleToFit(Textures.load("soul_yh.webp"), soul_img_Size, soul_img_Size)
 
 # --- Sounds ---
 snd_hurt = pygame.mixer.Sound("sfx/hurt.wav")
@@ -57,8 +62,14 @@ graze = Graze(soul)
 board = Board(WIDTH//2, HEIGHT//2)
 root = GameObject(WIDTH//2, HEIGHT//2, 0, None)
 bullets = []
+soulbullets = []
 afterimages = []
 gooner = None #Gooner((root.x, root.y))
+
+def set_battle_time(value):
+    global pattern_change_delay
+    pattern_change_delay = value
+    print(pattern_change_delay)
 
 # --- Patterns ---
 def p_test_a(): return PatternTestA(soul, board, bullets, center)
@@ -74,12 +85,13 @@ def p_line(): return PatternLine(soul, board, bullets, center)
 def p_ball(): return PatternBall(soul, board, bullets, center)
 def p_ball_heavy(): return PatternBallHeavy(soul, board, bullets, center)
 def p_reverse_fall(): return PatternReverseFall(soul, board, bullets, center)
+def p_spin(): return PatternSpin(soul, board, bullets, center, set_battle_time)
 patterns = [p_tunnel, p_ruddin, p_round, p_test_a, p_forth, p_forth2, p_hathy, p_ruddin_b, p_line, p_test_b, p_ball, p_ball_heavy, p_reverse_fall]
 #patterns = [p_test_b]
 #patterns = [p_forth2]
 #patterns = [p_ball_heavy, p_ball]
-#patterns = [p_reverse_fall]
-#patterns = [p_hathy]
+#patterns = [p_reverse_fall, p_ball]
+patterns = [p_spin]
 pattern = None
 pattern_interval = 500
 pattern_change_delay = 0
@@ -97,13 +109,14 @@ die = False
 die_timer = 0
 hurt_delay_max = 100
 hurt_delay = 0
+shoot_delay_max = 15
+shoot_delay = 0
 play_graze = False
 dbgpause = False
 slowm_interval = 2
 slowm_frame = 0
 draw_hb = False
 soul_shards = []
-
 #--- Util ---
 bar_width = 200
 bar_height = 30
@@ -139,6 +152,8 @@ while running:
     keys_old[pygame.K_5] = keys[pygame.K_5]
 
     if hurt_delay > 0 and not die:
+        soul_image = soulr_image if soul.m == 'r' else souly_image
+        soulh_image = soulrh_image if soul.m == 'r' else soulyh_image
         if hurt_delay % 6 == 0 and not hurt_delay % 12 == 0:
             soul.morph_to(soul_image, 0.01)
         if hurt_delay % 12 == 0:
@@ -186,7 +201,8 @@ while running:
             running = False
         continue
 
-    # Logic
+    # LOGIC
+    
     if False:
         board.x = WIDTH//2 + math.cos(frame * 0.1) * 300
         board.y = HEIGHT//2 + math.sin(frame * 0.1) * 300
@@ -194,6 +210,9 @@ while running:
             afterimages.append(Afterimage.new_from(board, .5))
     if pattern_change_delay == 0:
         pattern = patterns[random.randint(0, len(patterns)-1)]()
+        try:
+            pattern.start()
+        except: pass
         pattern_pause = 50
         force_soul = True
         pattern_change_delay = pattern_interval
@@ -223,7 +242,21 @@ while running:
                 soul.y = board.y
                 force_soul = False
 
+    for i in soulbullets:
+        i.update()
+
+    if evade:
+        soul.evade(bullets, root, board)
     for i in bullets:
+        for soulbullet in soulbullets:
+            if i.touches(soulbullet):
+                if not soulbullet.isBig:
+                    bullets_delete.append(soulbullet)
+                breakable = True
+                try:
+                    breakable = i.breakable
+                except: pass
+                if breakable: bullets_delete.append(i)
         if i.touches(soul):
             if hurt_delay <= 0:
                 try:
@@ -248,14 +281,18 @@ while running:
     for i in afterimages:
         i.update()
 
+    if evade:
+        soul.evade(bullets, root, board)
     # Cleanup
     bullets[:] = [b for b in bullets if (not (b.is_off_screen(WIDTH, HEIGHT) and b.off_screen_del_cond(b))) and (not b in bullets_delete)]
+    soulbullets[:] = [b for b in soulbullets if (not (b.is_off_screen(WIDTH, HEIGHT)) and b not in bullets_delete)]
     afterimages[:] = [a for a in afterimages if not a.end()]
 
     # Die Guard
     if die:
         continue
 
+    # Controls
     if keys[pygame.K_1] and not keys_old[pygame.K_1]:
         pattern = patterns[random.randint(0, len(patterns)-1)]()
         pattern_change_delay = pattern_interval
@@ -297,8 +334,17 @@ while running:
     if keys[pygame.K_w] and pattern_pause <= pattern_pause_move_tres:
         soul.move_in_direction(soul.vel, 90)
         soul.u = True
-    if evade:
-        soul.evade(bullets, root, board)
+
+#    if soul.m == 'y':
+#        soul.point_to(center[0], center[1])
+#        soul.degree += -90
+
+    if soul.m == 'y' and keys[pygame.K_RETURN] and not keys_old[pygame.K_RETURN] and shoot_delay <= 0:
+        soulbullets.append(SoulBullet(soul.x, soul.y, soul.degree - 90))
+        shoot_delay = shoot_delay_max
+    keys_old[pygame.K_RETURN] = keys[pygame.K_RETURN]
+    if shoot_delay > 0:
+        shoot_delay -= 1
 
     if soul.x - soul.size <  board.x - (board.size/2):
         soul.x = board.x - (board.size/2) + soul.size
@@ -313,11 +359,14 @@ while running:
 
     #Render
     screen.fill((0, 0, 0))
+    if gooner is not None: gooner.draw(screen)
     board.draw(screen)
     for i in afterimages:
         i.draw(screen)
-    if gooner is not None: gooner.draw(screen)
     for i in bullets:
+        i.draw(screen)
+        if draw_hb: i.drawc(screen)
+    for i in soulbullets:
         i.draw(screen)
         if draw_hb: i.drawc(screen)
     soul.draw(screen)

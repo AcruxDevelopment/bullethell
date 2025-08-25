@@ -18,10 +18,10 @@ class PatternLine(Pattern):
         self.snd_spawn = pygame.mixer.Sound("sfx/hypnosis.wav")
 
     def start(self):
-        self.frame = 0
-        self.degree
+        super().start()
 
     def update(self):
+        super().update()
         self.frame += 1
         if self.frame == 1:
             self.snd_spawn.play()

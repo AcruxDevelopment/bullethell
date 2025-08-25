@@ -151,11 +151,21 @@ class GameObject:
         angle_deg = math.degrees(angle_rad)
         self.degree = angle_deg
 
-    def morph_to(self, new_image, duration):
-        self.morph_target_image = new_image.convert_alpha()
+    def morph_to(self, new_image, duration, override=True):
+        new_image = new_image.convert_alpha()
+
+        if self.morphing and override:
+            # Instantly finish current morph
+            self.original_image = self.morph_target_image
+            self.image = self.morph_target_image
+            self.morphing = False
+
+        # Start new morph
+        self.morph_target_image = new_image
         self.morph_start_time = time.time()
         self.morph_duration = duration
         self.morphing = True
+
 
     def distance(self, other):
         # Center-to-center distance

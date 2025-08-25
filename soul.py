@@ -2,38 +2,51 @@ import pygame
 from object import GameObject
 from textures import Textures
 
-soul_image = None
-soulh_image = None
+soulr_image = None
+soulrh_image = None
+souly_image = None
+soulyh_image = None
+soul_img_Size = 37
 def loadAssets():
-    global soul_image
-    global soulh_image
-    if not(soul_image is None):
+    global soulr_image
+    global soulrh_image
+    global souly_image
+    global soulyh_image
+    if not(soulr_image is None):
         return
     try:
-        soul_image = Textures.scaleToFit(Textures.load("soul.webp"), 37, 37)
-        soulh_image = Textures.scaleToFit(Textures.load("soulh.webp"), 37, 37)
+        soulr_image = Textures.scaleToFit(Textures.load("soul_r.webp"), soul_img_Size, soul_img_Size)
+        soulrh_image = Textures.scaleToFit(Textures.load("soul_rh.webp"), soul_img_Size, soul_img_Size)
+        souly_image = Textures.scaleToFit(Textures.load("soul_y.webp"), soul_img_Size, soul_img_Size)
+        soulyh_image = Textures.scaleToFit(Textures.load("soul_yh.webp"), soul_img_Size, soul_img_Size)
     except Exception as e:
         print("Failed to load texture, using fallback polygon:", e)
-        soul_image = pygame.Surface((40, 40), pygame.SRCALPHA)
-        pygame.draw.polygon(soul_image, (0, 255, 0), [(20,0),(40,40),(0,40)])
+        soulr_image = pygame.Surface((40, 40), pygame.SRCALPHA)
+        pygame.draw.polygon(soulr_image, (0, 255, 0), [(20,0),(40,40),(0,40)])
 
 class Soul(GameObject):
     def __init__(self, x, y, vel = 5, hp = 120):
         loadAssets()
-        super().__init__(x, y, 0, soul_image)
+        super().__init__(x, y, 0, soulr_image)
         self.vel = vel
         self.max_hp = hp
         self.hp = hp
         self.size = 37
         self.u, self.l, self.d, self.r = False, False, False, False
+        self.m = 'r'
+
+    def setMode(self, mode):
+        self.m = mode
+        soul_image = soulr_image if self.m == 'r' else souly_image
+        self.original_image = soul_image
 
     def evade(self, bullets, center, board):
          xo = self.x
          yo = self.y
          dist = 0
          dist_max = 800
-         dist_step = 1
-         deg_step = 10
+         dist_step = 10
+         deg_step = 1
          while dist < dist_max:
              self.point_to(center.x, center.y)
              deg = self.degree

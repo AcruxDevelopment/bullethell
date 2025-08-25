@@ -19,7 +19,11 @@ class PatternForth2(Pattern):
         self.snd_start = pygame.mixer.Sound("sfx/whistle.wav")
         self.active = False
 
+    def start(self):
+        super().start()
+
     def update(self):
+        super().update()
         if self.frame == 0:
             self.snd_start.play()
 

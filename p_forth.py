@@ -16,8 +16,12 @@ class PatternForth(Pattern):
         self.snd_spawn.set_volume(0.5)
         self.phase = -1
         self.acc = acc
+        
+    def start(self):
+        super().start()
 
     def update(self):
+        super().update()
         ac = self.acc
         self.frame += 1
         if self.frame % self.interval != 0: return

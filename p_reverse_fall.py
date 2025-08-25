@@ -49,10 +49,13 @@ ebarriers = barriers
 def off_screen_del_cond(self:BulletRain):
     return self.y < 0
 
+def soulangle(pattern):
+    return -180
+
 class PatternReverseFall(Pattern):
     #def __init__(self, soul, board, bullets, center, count = 40, iacc = 3, sacc = 0.5, interval = 100):
     def __init__(self, soul, board, bullets, center, count = 40, iacc = 2, sacc = 0.6, interval = 100):
-        super().__init__(soul, board, bullets, center)
+        super().__init__(soul, board, bullets, center, 'y', soulangle)
         self.frame = 0
         self.count = count
         self.acc = iacc
@@ -63,10 +66,12 @@ class PatternReverseFall(Pattern):
         #self.snd_spawn = pygame.mixer.Sound("sfx/hypnosis.wav")
 
     def start(self):
+        super().start()
         self.frame = 0
         self.degree
 
     def update(self):
+        super().update()
         bulletgap = 40
         self.frame += 1
         self.x = self.board.x + self.xtransormer(self.frame*0.01) * 30
