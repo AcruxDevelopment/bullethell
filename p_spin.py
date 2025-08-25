@@ -109,7 +109,7 @@ class PatternSpin(Pattern):
             self.set_battle_time(1)
             self.end = True
 
-        if self.frame % self.interval == 0 and self.frame < self.reverseDelay:
+        if self.frame % self.interval == 0 and self.vel != self.rvel:
             self.rbarrier()
         if self.frame < self.reverseDelay:
             self.vel -= self.nacc
