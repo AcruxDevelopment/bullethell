@@ -22,7 +22,7 @@ def loadAssets():
 class SoulBullet(GameObject):
     def __init__(self, x, y, degree, vel = 25, isBig = False):
         loadAssets()
-        super().__init__(x, y, degree, small_image, True, 15)
+        super().__init__(x, y, degree, small_image, True, 5)
         self.vel = vel
         self.size = 37
         self.isBig = isBig

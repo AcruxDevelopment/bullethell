@@ -94,7 +94,7 @@ class PatternSpin(Pattern):
             barrierobj.add_child(bullet)
             y -= gap
         for i in range(2):
-            bullet = BulletStatic(x, y, 180, spinedge_bullet_image, False, 0)
+            bullet = BulletStatic(x, y, 180, spinedge_bullet_image, False, 1)
             bullet.off_screen_del_cond = off_screen_del_cond
             self.bullets.append(bullet)
             barrierobj.add_child(bullet)
@@ -130,9 +130,10 @@ class PatternSpin(Pattern):
                 j += 1
 
         for i in self.children:
+            visible_bullet_image = break_bullet_image if i.breakable else nonbreak_bullet_image
             isOff = not((i.y-40 < (self.board.y + self.board.size/2)) and (i.y+40 > (self.board.y - self.board.size/2))) and i.radius != 1
             if self.prevAreOff[i] and not isOff:
-                    i.morph_to(break_bullet_image, 0.01)
+                    i.morph_to(visible_bullet_image, 0.01)
             if not self.prevAreOff[i] and isOff:
                     i.morph_to(alpha_image, 0.01)
             self.prevAreOff[i] = isOff

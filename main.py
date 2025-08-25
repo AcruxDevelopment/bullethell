@@ -26,6 +26,7 @@ from p_ball import PatternBall
 from p_ball_heavy import PatternBallHeavy
 from p_reverse_fall import PatternReverseFall
 from p_spin import PatternSpin
+from p_castle import PatternCastle
 from graze import Graze
 from gooner import Gooner
 from soul_shard import SoulShard
@@ -55,6 +56,9 @@ snd_hurt = pygame.mixer.Sound("sfx/hurt.wav")
 snd_graze = pygame.mixer.Sound("sfx/graze.wav")
 snd_break1 = pygame.mixer.Sound("sfx/break1.wav")
 snd_break2 = pygame.mixer.Sound("sfx/break2.wav")
+snd_small_shot = pygame.mixer.Sound("sfx/small_shot.wav")
+snd_break_denied = pygame.mixer.Sound("sfx/break_denied.wav")
+snd_break = pygame.mixer.Sound("sfx/break.wav")
 
 # --- Create objects ---
 soul = Soul(WIDTH//2, HEIGHT//2, 4)
@@ -87,6 +91,7 @@ def p_reverse_fall(): return PatternReverseFall(soul, board, bullets, center)
 def p_spin(): return PatternSpin(soul, board, bullets, center, set_battle_time)
 def p_spin_fast(): return PatternSpin(soul, board, bullets, center, set_battle_time, 80, 9, 0.05, 9, 0.05, 350)
 def p_spin_slow(): return PatternSpin(soul, board, bullets, center, set_battle_time, 50, 3, 0.01, 3, 0.01, 500)
+def p_castle(): return PatternCastle(soul, board, bullets, center, set_battle_time)
 patterns = [p_tunnel, p_ruddin, p_round, p_test_a, p_forth, p_forth2, p_hathy, p_ruddin_b, p_line, p_test_b, p_ball, p_ball_heavy, p_reverse_fall,
             p_spin, p_spin_fast, p_spin_slow]
 #patterns = [p_test_b]
@@ -96,6 +101,8 @@ patterns = [p_tunnel, p_ruddin, p_round, p_test_a, p_forth, p_forth2, p_hathy, p
 #patterns = [p_reverse_fall]
 #patterns = [p_spin]
 #patterns = [p_spin, p_spin_fast, p_spin_slow]
+patterns = [p_castle, p_spin, p_spin_fast, p_spin_slow, p_reverse_fall] #JUSTICE
+#patterns = [p_castle]
 pattern = None
 pattern_interval = 500
 pattern_change_delay = 0
@@ -113,7 +120,7 @@ die = False
 die_timer = 0
 hurt_delay_max = 100
 hurt_delay = 0
-shoot_delay_max = 15
+shoot_delay_max = 9
 shoot_delay = 0
 play_graze = False
 dbgpause = False
@@ -260,7 +267,10 @@ while running:
                 try:
                     breakable = i.breakable
                 except: pass
-                if breakable: bullets_delete.append(i)
+                if breakable:
+                    bullets_delete.append(i)
+                    snd_break.play()
+                else: snd_break_denied.play()
         if i.touches(soul):
             if hurt_delay <= 0:
                 try:
@@ -346,6 +356,7 @@ while running:
     if soul.m == 'y' and keys[pygame.K_RETURN] and not keys_old[pygame.K_RETURN] and shoot_delay <= 0:
         soulbullets.append(SoulBullet(soul.x, soul.y, soul.degree - 90))
         shoot_delay = shoot_delay_max
+        snd_small_shot.play()
     keys_old[pygame.K_RETURN] = keys[pygame.K_RETURN]
     if shoot_delay > 0:
         shoot_delay -= 1
@@ -378,6 +389,19 @@ while running:
     graze.draw(screen)
     if draw_hb: graze.drawc(screen)
     draw_health_bar(screen, WIDTH/2-(300/2), HEIGHT - 150, 300 , 25)
+    if type(pattern) == PatternCastle and False:
+        surface = screen
+        angle_deg = soul.degree
+        length = 999
+        start_pos = [soul.x, HEIGHT - soul.y]
+        color = (255, 0, 0)
+        width = 3
+        angle_rad = math.radians(angle_deg + 90 + 180)
+        end_pos = (
+            start_pos[0] + length * math.cos(angle_rad),
+            start_pos[1] - length * math.sin(angle_rad)  # minus because pygame y-axis goes down
+        )
+        pygame.draw.line(surface, color, start_pos, end_pos, width)
 
     pygame.display.flip()
     frame += 1
