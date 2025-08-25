@@ -156,7 +156,7 @@ class GameObject:
 
         if self.morphing and override:
             # Instantly finish current morph
-            self.original_image = self.morph_target_image
+            #self.original_image = self.morph_target_image
             self.image = self.morph_target_image
             self.morphing = False
 

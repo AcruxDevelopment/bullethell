@@ -19,7 +19,7 @@ def loadAssets():
         pygame.draw.polygon(spade_image, (0, 255, 0), [(20,0),(40,40),(0,40)])
 
 class BulletRain(GameObject):
-    def __init__(self, x, y, degree, facc = 0.1, svel = 0, fvel = 0):
+    def __init__(self, x, y, degree, facc = 0.1, svel = 0, fvel = 0, breakable = False, image = None):
         loadAssets()
         super().__init__(x, y, degree, spade_spawn_image, True, 17)
         self.svel = svel
@@ -27,13 +27,16 @@ class BulletRain(GameObject):
         self.facc = facc
         self.frame = 0
         self.grazed = False
+        self.breakable = breakable
+        if image is None: image = spade_image
+        self.eeeimage = image
 
     def damage(self, soul):
         soul.hp -= 15
 
     def update(self):
         if self.frame == 0:
-            self.morph_to(spade_image, 0.5)
+            self.morph_to(self.eeeimage, 0.5)
         self.frame += 1
         self.fvel += self.facc
         self.move_in_direction(self.fvel, self.degree)

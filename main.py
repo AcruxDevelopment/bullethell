@@ -69,7 +69,6 @@ gooner = None #Gooner((root.x, root.y))
 def set_battle_time(value):
     global pattern_change_delay
     pattern_change_delay = value
-    print(pattern_change_delay)
 
 # --- Patterns ---
 def p_test_a(): return PatternTestA(soul, board, bullets, center)
@@ -86,12 +85,17 @@ def p_ball(): return PatternBall(soul, board, bullets, center)
 def p_ball_heavy(): return PatternBallHeavy(soul, board, bullets, center)
 def p_reverse_fall(): return PatternReverseFall(soul, board, bullets, center)
 def p_spin(): return PatternSpin(soul, board, bullets, center, set_battle_time)
-patterns = [p_tunnel, p_ruddin, p_round, p_test_a, p_forth, p_forth2, p_hathy, p_ruddin_b, p_line, p_test_b, p_ball, p_ball_heavy, p_reverse_fall]
+def p_spin_fast(): return PatternSpin(soul, board, bullets, center, set_battle_time, 80, 9, 0.05, 9, 0.05, 350)
+def p_spin_slow(): return PatternSpin(soul, board, bullets, center, set_battle_time, 50, 3, 0.01, 3, 0.01, 500)
+patterns = [p_tunnel, p_ruddin, p_round, p_test_a, p_forth, p_forth2, p_hathy, p_ruddin_b, p_line, p_test_b, p_ball, p_ball_heavy, p_reverse_fall,
+            p_spin, p_spin_fast, p_spin_slow]
 #patterns = [p_test_b]
 #patterns = [p_forth2]
 #patterns = [p_ball_heavy, p_ball]
 #patterns = [p_reverse_fall, p_ball]
-patterns = [p_spin]
+#patterns = [p_reverse_fall]
+#patterns = [p_spin]
+#patterns = [p_spin, p_spin_fast, p_spin_slow]
 pattern = None
 pattern_interval = 500
 pattern_change_delay = 0
@@ -270,7 +274,7 @@ while running:
             play_graze = True
             graze.graze()
             i.grazed = True
-            soul.hp += 1 / 4
+            soul.hp += 1
             soul.hp = min(soul.hp, soul.max_hp)
         if frame % 4 == 0 and afterimage:
             rad = math.radians(i.degree)
