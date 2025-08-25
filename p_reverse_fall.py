@@ -91,7 +91,7 @@ class PatternReverseFall(Pattern):
         super().update()
         bulletgap = 40
         self.frame += 1
-        self.x = self.board.x + self.xtransormer(self.frame*0.01) * 30
+        #self.x = self.board.x
 
         #self.x = -self.soul.x * 0.25
         #self.x += self.xtransormer(self.frame*0.01) * 30
@@ -113,7 +113,7 @@ class PatternReverseFall(Pattern):
                 self.add_child(bullet)
                 x += bulletgap
                 k += 1
-            y += 240 + j*30
+            y += 280 + j*30
             j += 1 
 
             self.acc += self.sacc + (j*0.01)

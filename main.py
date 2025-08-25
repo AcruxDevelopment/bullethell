@@ -59,6 +59,7 @@ snd_break2 = pygame.mixer.Sound("sfx/break2.wav")
 snd_small_shot = pygame.mixer.Sound("sfx/small_shot.wav")
 snd_break_denied = pygame.mixer.Sound("sfx/break_denied.wav")
 snd_break = pygame.mixer.Sound("sfx/break.wav")
+snd_break.set_volume(0.5)
 
 # --- Create objects ---
 soul = Soul(WIDTH//2, HEIGHT//2, 4)
@@ -128,6 +129,7 @@ slowm_interval = 2
 slowm_frame = 0
 draw_hb = False
 soul_shards = []
+shards = []
 #--- Util ---
 bar_width = 200
 bar_height = 30
@@ -161,6 +163,9 @@ while running:
         keys_old[pygame.K_5] = keys[pygame.K_5]
         continue
     keys_old[pygame.K_5] = keys[pygame.K_5]
+
+    if keys[pygame.K_7]:
+        soul.hp = soul.max_hp
 
     if hurt_delay > 0 and not die:
         soul_image = soulr_image if soul.m == 'r' else souly_image
@@ -270,6 +275,15 @@ while running:
                 if breakable:
                     bullets_delete.append(i)
                     snd_break.play()
+                    for shard in [
+                        SoulShardFall(i.x, i.y, 0, 7, 3),
+                        SoulShardFall(i.x, i.y, -3, 5, 2),
+                        SoulShardFall(i.x, i.y, -7, 2, 3),
+                        SoulShardFall(i.x, i.y, -5, -2, 3),
+                        SoulShardFall(i.x, i.y, 7, -3, 2),
+                        SoulShardFall(i.x, i.y, 3, -5, 3)
+                    ]:
+                        shards.append(shard)
                 else: snd_break_denied.play()
         if i.touches(soul):
             if hurt_delay <= 0:
@@ -294,6 +308,8 @@ while running:
         i.update()
     for i in afterimages:
         i.update()
+    for i in shards:
+        i.update()
 
     if evade:
         soul.evade(bullets, root, board)
@@ -301,6 +317,7 @@ while running:
     bullets[:] = [b for b in bullets if (not (b.is_off_screen(WIDTH, HEIGHT) and b.off_screen_del_cond(b))) and (not b in bullets_delete)]
     soulbullets[:] = [b for b in soulbullets if (not (b.is_off_screen(WIDTH, HEIGHT)) and b not in bullets_delete)]
     afterimages[:] = [a for a in afterimages if not a.end()]
+    shards[:] = [s for s in shards if not s.is_off_screen(WIDTH, HEIGHT)]
 
     # Die Guard
     if die:
@@ -379,6 +396,8 @@ while running:
     for i in afterimages:
         i.draw(screen)
     for i in bullets:
+        i.draw(screen)
+    for i in shards:
         i.draw(screen)
         if draw_hb: i.drawc(screen)
     for i in soulbullets:
