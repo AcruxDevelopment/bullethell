@@ -290,7 +290,7 @@ while running:
                 if breakable:
                     bullets_delete.append(i)
                     snd_break.play()
-                    soul.hp += 2
+                    soul.hp += 0.5
                     soul.hp = min(soul.hp, soul.max_hp)
                     for shard in [
                         SoulShardFall(i.x, i.y, 0, 7, 3),
