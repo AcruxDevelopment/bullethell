@@ -107,6 +107,7 @@ patterns = [p_tunnel, p_ruddin, p_round, p_test_a, p_forth, p_forth2, p_hathy, p
 patterns = [p_castle, p_spin, p_spin_fast, p_spin_slow, p_reverse_fall, p_pendulum] #JUSTICE
 #patterns = [p_castle]
 #patterns = [p_pendulum]
+#patterns = [p_reverse_fall]
 pattern = None
 pattern_interval = 500
 pattern_change_delay = 0
