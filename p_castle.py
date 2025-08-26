@@ -36,7 +36,7 @@ def souldir(pattern):
     soul:Soul = pattern.soul
     board:Board = pattern.board
     soul.point_to(board.x, board.y)
-    return (soul.degree - 90)+180
+    return (soul.degree - 90)+180 + math.sin(pattern.frame * 0.1) * 15
 
 def __souldir(pattern):
     closest = None
@@ -88,12 +88,15 @@ class PatternCastle(Pattern):
         for i in self.bullets:
             i.point_to(self.soul.x, self.soul.y)
             mxvel = 5
-            minvel = 3
+            minvel = 2.6
             i.fvel = max(min(mxvel, mxvel * i.distance(self.soul)/700), minvel)
 
         if self.frame % self.interval != 1: return
         bullet = BulletRain(self.board.x, self.board.y, 0, 0, 0, 0, breakable=True, image=break_bullet_image)
-        bullet.degree = random.randint(0, 359)
+        #bullet.degree = random.randint(0, 359)
+        bullet.point_to(self.soul.x, self.soul.y)
+        bullet.degree += random.randint(-50, 50)
+        if random.randint(0, 2) == 0: bullet.degree += 180
         bullet.move_in_direction(500, bullet.degree)
         bullet.degree += 180
         bullet.off_screen_del_cond = off_screen_del_cond

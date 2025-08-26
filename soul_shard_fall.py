@@ -7,12 +7,16 @@ soulr1_image = None
 soulr2_image = None
 soulb1_image = None
 soulb2_image = None
+souly1_image = None
+souly2_image = None
 alpha_image = None
 def loadAssets():
     global soulr1_image
     global soulr2_image
     global soulb1_image
     global soulb2_image
+    global souly1_image
+    global souly2_image
     global alpha_image
     if not(soulr2_image is None):
         return
@@ -21,6 +25,8 @@ def loadAssets():
         soulr2_image = Textures.scaleToFit(Textures.load("soulbs2.webp"), 37, 37)
         soulb1_image = Textures.scaleToFit(Textures.load("soulbs1_blue.webp"), 37, 37)
         soulb2_image = Textures.scaleToFit(Textures.load("soulbs2_blue.webp"), 37, 37)
+        souly1_image = Textures.scaleToFit(Textures.load("soulbs1_yellow.webp"), 37, 37)
+        souly2_image = Textures.scaleToFit(Textures.load("soulbs2_yellow.webp"), 37, 37)
         alpha_image = Textures.scaleToFit(Textures.load("alpha.webp"), 37, 37)
     except Exception as e:
         print("Failed to load texture, using fallback polygon:", e)
@@ -57,6 +63,13 @@ class SoulShardFall(GameObject):
         elif self.num == 3:
             self.morph_to(soulb2_image, 0.01)
             self.num = 2
+
+        if self.num == 4:
+            self.morph_to(souly1_image, 0.01)
+            self.num = 5
+        elif self.num == 5:
+            self.morph_to(souly2_image, 0.01)
+            self.num = 4
 
     def update(self):
         if self.frame == 0:

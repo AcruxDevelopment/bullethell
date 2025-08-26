@@ -27,6 +27,7 @@ from p_ball_heavy import PatternBallHeavy
 from p_reverse_fall import PatternReverseFall
 from p_spin import PatternSpin
 from p_castle import PatternCastle
+from p_pendulum import PatternPendulum
 from graze import Graze
 from gooner import Gooner
 from soul_shard import SoulShard
@@ -93,8 +94,9 @@ def p_spin(): return PatternSpin(soul, board, bullets, center, set_battle_time)
 def p_spin_fast(): return PatternSpin(soul, board, bullets, center, set_battle_time, 80, 9, 0.05, 9, 0.05, 350)
 def p_spin_slow(): return PatternSpin(soul, board, bullets, center, set_battle_time, 50, 3, 0.01, 3, 0.01, 500)
 def p_castle(): return PatternCastle(soul, board, bullets, center, set_battle_time)
+def p_pendulum(): return PatternPendulum(soul, board, bullets, center, set_battle_time)
 patterns = [p_tunnel, p_ruddin, p_round, p_test_a, p_forth, p_forth2, p_hathy, p_ruddin_b, p_line, p_test_b, p_ball, p_ball_heavy, p_reverse_fall,
-            p_spin, p_spin_fast, p_spin_slow]
+            [p_spin, p_spin_fast, p_spin_slow], p_pendulum, p_castle]
 #patterns = [p_test_b]
 #patterns = [p_forth2]
 #patterns = [p_ball_heavy, p_ball]
@@ -102,8 +104,9 @@ patterns = [p_tunnel, p_ruddin, p_round, p_test_a, p_forth, p_forth2, p_hathy, p
 #patterns = [p_reverse_fall]
 #patterns = [p_spin]
 #patterns = [p_spin, p_spin_fast, p_spin_slow]
-patterns = [p_castle, p_spin, p_spin_fast, p_spin_slow, p_reverse_fall] #JUSTICE
+patterns = [p_castle, p_spin, p_spin_fast, p_spin_slow, p_reverse_fall, p_pendulum] #JUSTICE
 #patterns = [p_castle]
+#patterns = [p_pendulum]
 pattern = None
 pattern_interval = 500
 pattern_change_delay = 0
@@ -187,7 +190,7 @@ while running:
             pygame.mixer.music.set_volume(0)
         if die_timer == 130:
             snd_break1.play()
-            soul_shards = [SoulShard(soul.x, soul.y, True), SoulShard(soul.x, soul.y, False)]
+            soul_shards = [SoulShard(soul.x, soul.y, True, soul.degree, soul.m), SoulShard(soul.x, soul.y, False, soul.degree, soul.m)]
             soul.morph_to(alpha_image, 0.01)
 
         if die_timer == 200: #150
@@ -198,7 +201,15 @@ while running:
                 SoulShardFall(soul.x, soul.y, -5, -2, 1),
                 SoulShardFall(soul.x, soul.y, 7, -3, 1),
                 SoulShardFall(soul.x, soul.y, 3, -5, 0)
+            ] if soul.m == 'r' else [
+                SoulShardFall(soul.x, soul.y, 0, 7, 4),
+                SoulShardFall(soul.x, soul.y, -3, 5, 5),
+                SoulShardFall(soul.x, soul.y, -7, 2, 4),
+                SoulShardFall(soul.x, soul.y, -5, -2, 5),
+                SoulShardFall(soul.x, soul.y, 7, -3, 5),
+                SoulShardFall(soul.x, soul.y, 3, -5, 4)
             ]
+            
             snd_break2.play()
 
         if die_timer > 90:
@@ -226,6 +237,9 @@ while running:
             afterimages.append(Afterimage.new_from(board, .5))
     if pattern_change_delay == 0:
         pattern = patterns[random.randint(0, len(patterns)-1)]()
+        if isinstance(pattern, list):
+            pattern = pattern[random.randint(0, len(pattern)-1)]()
+
         try:
             pattern.start()
         except: pass
@@ -275,6 +289,8 @@ while running:
                 if breakable:
                     bullets_delete.append(i)
                     snd_break.play()
+                    soul.hp += 2
+                    soul.hp = min(soul.hp, soul.max_hp)
                     for shard in [
                         SoulShardFall(i.x, i.y, 0, 7, 3),
                         SoulShardFall(i.x, i.y, -3, 5, 2),
@@ -326,6 +342,8 @@ while running:
     # Controls
     if keys[pygame.K_1] and not keys_old[pygame.K_1]:
         pattern = patterns[random.randint(0, len(patterns)-1)]()
+        if isinstance(pattern, list):
+            pattern = pattern[random.randint(0, len(pattern)-1)]()
         pattern_change_delay = pattern_interval
         pattern.start()
         bullets[:] = []
@@ -397,6 +415,7 @@ while running:
         i.draw(screen)
     for i in bullets:
         i.draw(screen)
+        if draw_hb: i.drawc(screen)
     for i in shards:
         i.draw(screen)
         if draw_hb: i.drawc(screen)
