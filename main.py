@@ -135,6 +135,7 @@ draw_hb = False
 soul_shards = []
 shards = []
 evade_mode_evaded = False
+push = True
 #--- Util ---
 bar_width = 200
 bar_height = 30
@@ -401,12 +402,16 @@ while running:
 
     if soul.x - soul.size <  board.x - (board.size/2):
         soul.x = board.x - (board.size/2) + soul.size
+        if push: board.x -= soul.vel
     elif soul.x + soul.size >  board.x + (board.size/2):
         soul.x = board.x + (board.size/2) - soul.size
+        if push: board.x += soul.vel
     if soul.y - soul.size <  board.y - (board.size/2):
         soul.y = board.y - (board.size/2) + soul.size
+        if push: board.y -= soul.vel
     elif soul.y + soul.size >  board.y + (board.size/2):
         soul.y = board.y + (board.size/2) - soul.size
+        if push: board.y += soul.vel
 
     graze.update()
 
