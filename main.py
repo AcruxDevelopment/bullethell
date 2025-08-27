@@ -134,6 +134,7 @@ slowm_frame = 0
 draw_hb = False
 soul_shards = []
 shards = []
+evade_mode_evaded = False
 #--- Util ---
 bar_width = 200
 bar_height = 30
@@ -276,8 +277,9 @@ while running:
     for i in soulbullets:
         i.update()
 
+    evade_mode_evaded = False
     if evade:
-        soul.evade(bullets, root, board)
+        evade_mode_evaded = evade_mode_evaded or soul.evade(bullets, root, board)
     for i in bullets:
         for soulbullet in soulbullets:
             if i.touches(soulbullet):
@@ -329,7 +331,7 @@ while running:
         i.update()
 
     if evade:
-        soul.evade(bullets, root, board)
+        evade_mode_evaded = evade_mode_evaded or soul.evade(bullets, root, board)
     # Cleanup
     bullets[:] = [b for b in bullets if (not (b.is_off_screen(WIDTH, HEIGHT) and b.off_screen_del_cond(b))) and (not b in bullets_delete)]
     soulbullets[:] = [b for b in soulbullets if (not (b.is_off_screen(WIDTH, HEIGHT)) and b not in bullets_delete)]
@@ -389,7 +391,7 @@ while running:
 #        soul.point_to(center[0], center[1])
 #        soul.degree += -90
 
-    if soul.m == 'y' and keys[pygame.K_RETURN] and not keys_old[pygame.K_RETURN] and shoot_delay <= 0:
+    if soul.m == 'y' and shoot_delay <= 0 and ((keys[pygame.K_RETURN] and not keys_old[pygame.K_RETURN]) or evade_mode_evaded):
         soulbullets.append(SoulBullet(soul.x, soul.y, soul.degree - 90))
         shoot_delay = shoot_delay_max
         snd_small_shot.play()

@@ -41,13 +41,14 @@ class Soul(GameObject):
 		self.original_image = soul_image
 
 	def evade(self, bullets, center, board):
+		everCollided = False
 		xo = self.x
 		yo = self.y
 		do = self.degree
 		dist = 0
 		dist_max = 100
 		dist_step = 10
-		deg_step = 1
+		deg_step = 5
 		while dist < dist_max:
 			self.point_to(center.x, center.y)
 			deg = self.degree
@@ -65,9 +66,11 @@ class Soul(GameObject):
 				for b in bullets:
 					if b.touches(self):
 						col = True
+						everCollided = True
 						break
 				if not col:
 					self.degree = do
-					return
+					return everCollided
 			dist += dist_step
 		self.degree = do
+		return everCollided
