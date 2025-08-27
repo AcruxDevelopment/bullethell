@@ -150,14 +150,17 @@ class PatternPendulum(Pattern):
             for bullet in i.children:
                 self.bullets.remove(bullet)
 
+        j = 0
         for i in self.children:
-            visible_bullet_image = break_bullet_image if i.breakable else nonbreak_bullet_image
+            # 12 = 11 bullets in barrier + 1 edge bullet
+            visible_bullet_image = break_bullet_image if i.breakable else nonbreak_bullet_image if j % 13 != 12 else spinedge_bullet_image
             isOff = (i.y > self.board.y + self.board.size/2 + 50)
             if self.prevAreOff[i] and not isOff:
                     i.morph_to(visible_bullet_image, 0.15)
             if not self.prevAreOff[i] and isOff:
                     i.morph_to(alpha_image, 0.3)
             self.prevAreOff[i] = isOff
+            j += 1
 
         if self.vel == self.rvel:
             self.timeOnMaxReverseVel += 1
