@@ -1,6 +1,6 @@
 import pygame
 import math
-from object import GameObject
+from gobject import GameObject
 from textures import Textures
 import random
 

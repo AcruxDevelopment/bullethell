@@ -2,7 +2,7 @@ import pygame
 import random
 import math
 import subprocess
-from object import GameObject
+from gobject import GameObject
 from textures import Textures
 from bullet_rain import spade_image
 from bullet_ball import BulletBall
@@ -135,7 +135,7 @@ draw_hb = False
 soul_shards = []
 shards = []
 evade_mode_evaded = False
-push = True
+push = False
 #--- Util ---
 bar_width = 200
 bar_height = 30

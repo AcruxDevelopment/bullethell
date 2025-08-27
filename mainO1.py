@@ -1,7 +1,7 @@
 import pygame
 import random
 import math
-from object import GameObject
+from gobject import GameObject
 from textures import Textures
 from bullet_rain import spade_image
 from bullet_heart_spinner import BulletHeartSpinner

@@ -1,5 +1,5 @@
 import pygame
-from object import GameObject
+from gobject import GameObject
 from textures import Textures
 
 graze_image = None

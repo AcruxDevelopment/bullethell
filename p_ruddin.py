@@ -1,5 +1,5 @@
 import pygame
-from object import GameObject
+from gobject import GameObject
 from soul import Soul
 from board import Board
 from bullet_circle import BulletCircle
