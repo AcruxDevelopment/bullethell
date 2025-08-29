@@ -142,12 +142,18 @@ bar_height = 30
 bar_x = 50
 bar_y = 50
 
-def draw_health_bar(surface, x, y, width, height):
+pygame.font.init()
+hpfont = pygame.font.Font(pygame.font.get_default_font(), 20)
+def draw_health_bar(surface:pygame.Surface, x, y, width, height):
+    color = (0, 255, 0) if soul.hp > 0 else (255, 0, 0)
     # Draw background (red)
     pygame.draw.rect(surface, (100, 100, 100), (x, y, width, height))
     # Calculate green part width
-    health_ratio = soul.hp / soul.max_hp
-    pygame.draw.rect(surface, (0, 255, 0), (x, y, width * health_ratio, height))
+    health_ratio = abs(soul.hp) / soul.max_hp
+    pygame.draw.rect(surface, color, (x, y, width * health_ratio, height))
+    render = hpfont.render(f"{round(soul.hp)} / {soul.max_hp}", True, color)
+    surface.blit(render, (x, y - height))
+    
 
 # --- Main Loop ---
 while running:
@@ -184,7 +190,6 @@ while running:
     # Die
     die = soul.hp <= 0
     if die:
-
         for i in soul_shards:
             i.update()
 
@@ -330,6 +335,9 @@ while running:
         i.update()
     for i in shards:
         i.update()
+
+    if soul.hp <= 0:
+        soul.hp = -soul.max_hp//2
 
     if evade:
         evade_mode_evaded = evade_mode_evaded or soul.evade(bullets, root, board)
