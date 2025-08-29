@@ -136,6 +136,7 @@ soul_shards = []
 shards = []
 evade_mode_evaded = False
 push = False
+quick_death = 0 # 0, 1, 2
 #--- Util ---
 bar_width = 200
 bar_height = 30
@@ -196,10 +197,17 @@ while running:
         die_timer += 1
         if die_timer == 1:
             pygame.mixer.music.set_volume(0)
+        if die_timer == 20 and quick_death == 2:
+            die_timer = 130
         if die_timer == 130:
             snd_break1.play()
             soul_shards = [SoulShard(soul.x, soul.y, True, soul.degree, soul.m), SoulShard(soul.x, soul.y, False, soul.degree, soul.m)]
             soul.morph_to(alpha_image, 0.01)
+            if quick_death == 2:
+                die_timer = 200
+
+        if die_timer == 160 and quick_death == 1:
+            soul.hp = soul.max_hp
 
         if die_timer == 200: #150
             soul_shards = [
@@ -232,9 +240,18 @@ while running:
 
         if die_timer > 300:
             #os.system("python main.py")
-            subprocess.Popen(["python", "main.py"])
-            running = False
+            #subprocess.Popen(["python", "main.py"])
+            #running = False
+            soul.hp = soul.max_hp
         continue
+
+    if(not die and die_timer > 0): # Revive
+        pygame.mixer.music.set_volume(0.5)
+        soul_shards = []
+        die_timer = 0
+        pattern_change_delay = 0
+        hurt_delay = 0
+
 
     # LOGIC
     
@@ -369,31 +386,36 @@ while running:
         evade = not evade
     keys_old[pygame.K_2] = keys[pygame.K_2]
 
+    if keys[pygame.K_8] and not keys_old[pygame.K_8]:
+        draw_hb = not draw_hb
+    keys_old[pygame.K_8] = keys[pygame.K_8]
+
+    soulvel = soul.vel / 2 if keys[pygame.K_RSHIFT] else soul.vel
     soul.u, soul.l, soul.d, soul.r = False, False, False, False
     if keys[pygame.K_LEFT] and pattern_pause <= pattern_pause_move_tres:
-        soul.move_by(-soul.vel, 0)
+        soul.move_by(-soulvel, 0)
         soul.l = True
     if keys[pygame.K_RIGHT] and pattern_pause <= pattern_pause_move_tres:
-        soul.move_by(soul.vel, 0)
+        soul.move_by(soulvel, 0)
         soul.r = True
     if keys[pygame.K_UP] and pattern_pause <= pattern_pause_move_tres:
-        soul.move_by(0, soul.vel)
+        soul.move_by(0, soulvel)
         soul.u = True
     if keys[pygame.K_DOWN] and pattern_pause <= pattern_pause_move_tres:
-        soul.move_by(0, -soul.vel)
+        soul.move_by(0, -soulvel)
         soul.d = True
 
     if keys[pygame.K_a] and pattern_pause <= pattern_pause_move_tres:
-        soul.move_in_direction(soul.vel, 180)
+        soul.move_in_direction(soulvel, 180)
         soul.l = True
     if keys[pygame.K_d] and pattern_pause <= pattern_pause_move_tres:
-        soul.move_in_direction(soul.vel, 0)
+        soul.move_in_direction(soulvel, 0)
         soul.r = True
     if keys[pygame.K_s] and pattern_pause <= pattern_pause_move_tres:
-        soul.move_in_direction(soul.vel, -90)
+        soul.move_in_direction(soulvel, -90)
         soul.d = True
     if keys[pygame.K_w] and pattern_pause <= pattern_pause_move_tres:
-        soul.move_in_direction(soul.vel, 90)
+        soul.move_in_direction(soulvel, 90)
         soul.u = True
 
 #    if soul.m == 'y':
@@ -410,16 +432,16 @@ while running:
 
     if soul.x - soul.size <  board.x - (board.size/2):
         soul.x = board.x - (board.size/2) + soul.size
-        if push: board.x -= soul.vel
+        if push: board.x -= soulvel
     elif soul.x + soul.size >  board.x + (board.size/2):
         soul.x = board.x + (board.size/2) - soul.size
-        if push: board.x += soul.vel
+        if push: board.x += soulvel
     if soul.y - soul.size <  board.y - (board.size/2):
         soul.y = board.y - (board.size/2) + soul.size
-        if push: board.y -= soul.vel
+        if push: board.y -= soulvel
     elif soul.y + soul.size >  board.y + (board.size/2):
         soul.y = board.y + (board.size/2) - soul.size
-        if push: board.y += soul.vel
+        if push: board.y += soulvel
 
     graze.update()
 
